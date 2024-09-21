@@ -1,97 +1,48 @@
-import React, { useState } from "react";
-import "./CreateGroup.css"; // CSS 파일을 불러옵니다.
+import React, { useState } from 'react';
+import './CreateGroup.css'; // CreateGroup.css 파일을 적용
 
-const CreateGroup = () => {
-  const [groupName, setGroupName] = useState("");
-  const [groupDescription, setGroupDescription] = useState("");
-  const [groupImage, setGroupImage] = useState(null);
+function CreateGroup() {
   const [isPublic, setIsPublic] = useState(true);
-  const [password, setPassword] = useState("");
 
-  const handleGroupImageChange = (event) => {
-    setGroupImage(event.target.files[0]);
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    // 그룹 생성 API 호출 (axios 사용 가능)
-    console.log({
-      groupName,
-      groupDescription,
-      groupImage,
-      isPublic,
-      password,
-    });
+  const handleToggle = () => {
+    setIsPublic(!isPublic);
   };
 
   return (
-    <div className="create-group-container">
-      <h1>그룹 만들기</h1>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="groupName">그룹명</label>
-          <input
-            type="text"
-            id="groupName"
-            value={groupName}
-            onChange={(e) => setGroupName(e.target.value)}
-            placeholder="그룹명을 입력해 주세요"
-            required
-          />
+    <div className="create-group-page">
+      {/* 상단 로고 아이콘 추가 */}
+      <div className="header">
+        <img src="jogakzip1.svg" alt="조각집 로고" className="icon" />
+        <h2>그룹 만들기</h2>
+      </div>
+
+      <form className="create-group-form">
+        <label>그룹명</label>
+        <input type="text" placeholder="그룹명을 입력하세요" />
+
+        <label>대표 이미지</label>
+        <input type="file" />
+
+        <label>그룹 소개</label>
+        <textarea placeholder="그룹을 소개해 주세요" />
+
+        <label>그룹 공개 선택</label>
+        {/* 토글 버튼 */}
+        <div className="toggle">
+          <span>{isPublic ? '공개' : '비공개'}</span>
+          <label className="switch">
+            <input type="checkbox" checked={isPublic} onChange={handleToggle} />
+            <span className="slider"></span>
+          </label>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="groupImage">대표 이미지</label>
-          <input
-            type="file"
-            id="groupImage"
-            onChange={handleGroupImageChange}
-            placeholder="파일을 선택해 주세요"
-          />
-        </div>
+        <label>비밀번호 생성</label>
+        <input type="password" placeholder="그룹 비밀번호를 생성해 주세요" />
 
-        <div className="form-group">
-          <label htmlFor="groupDescription">그룹 소개</label>
-          <textarea
-            id="groupDescription"
-            value={groupDescription}
-            onChange={(e) => setGroupDescription(e.target.value)}
-            placeholder="그룹 소개를 입력해 주세요"
-          />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="isPublic">그룹 공개 선택</label>
-          <div className="switch">
-            <label>
-              공개
-              <input
-                type="checkbox"
-                checked={isPublic}
-                onChange={() => setIsPublic(!isPublic)}
-              />
-              <span className="slider"></span>
-            </label>
-          </div>
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="password">비밀번호 생성</label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="비밀번호를 생성해 주세요"
-          />
-        </div>
-
-        <button type="submit" className="submit-button">
-          만들기
-        </button>
+        <button type="submit">만들기</button>
       </form>
     </div>
   );
-};
+}
 
 export default CreateGroup;
