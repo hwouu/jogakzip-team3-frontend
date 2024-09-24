@@ -28,6 +28,40 @@ const GroupList = () => {
       dDay: 180,
       isPublic: false, // 비공개 그룹의 경우 이미지를 출력하지 않음
     },
+    {
+      id: 3,
+      title: '에델바이스',
+      description: '서로 한 마음으로 응원하고 아끼는 달봉이네 가족입니다.',
+      badges: 2,
+      memories: 8,
+      likes: 1500,
+      dDay: 265,
+      isPublic: true,
+      imgSrc: 'edelweiss-public.png', // 공개 그룹의 대표 이미지
+    },
+    {
+      id: 4,
+      title: '에델바이스',
+      description: '서로 한 마음으로 응원하고 아끼는 달봉이네 가족입니다.',
+      badges: 2,
+      memories: 8,
+      likes: 1500,
+      dDay: 265,
+      isPublic: true,
+      imgSrc: 'edelweiss-public.png', // 공개 그룹의 대표 이미지
+    },
+    {
+      id: 5,
+      title: '에델바이스',
+      description: '서로 한 마음으로 응원하고 아끼는 달봉이네 가족입니다.',
+      badges: 2,
+      memories: 8,
+      likes: 1500,
+      dDay: 265,
+      isPublic: true,
+      imgSrc: 'edelweiss-public.png', // 공개 그룹의 대표 이미지
+    },
+
     // 추가 목업 그룹 데이터
   ];
 
@@ -69,13 +103,16 @@ const GroupList = () => {
           <button className={`public-btn ${isPublicSelected ? 'active' : ''}`} onClick={togglePublicGroups}>공개</button>
           <button className={`private-btn ${!isPublicSelected ? 'active' : ''}`} onClick={togglePrivateGroups}>비공개</button>
         </div>
-        <input
-          type="text"
-          placeholder="그룹명을 검색해 주세요"
-          className="search-input"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        <div className="search-container">
+          <img src="/search.svg" alt="search-icon" className="search-icon" />
+          <input
+            type="text"
+            placeholder="그룹명을 검색해 주세요"
+            className="search-input"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
         <select
           className="sort-select"
           value={sortCriteria}
