@@ -1,7 +1,7 @@
 ---
 name: 기능 개발 이슈
 about: 새로운 기능 구현에 대한 이슈
-title: "[Feature] 그룹 목록 조회 페이지 구현"
+title: "그룹 목록 조회 페이지 구현"
 labels: enhancement
 assignees: hwouu
 
