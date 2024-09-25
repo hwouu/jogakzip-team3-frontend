@@ -28,41 +28,6 @@ const GroupList = () => {
       dDay: 180,
       isPublic: false, // 비공개 그룹의 경우 이미지를 출력하지 않음
     },
-    {
-      id: 3,
-      title: '에델바이스',
-      description: '서로 한 마음으로 응원하고 아끼는 달봉이네 가족입니다.',
-      badges: 2,
-      memories: 8,
-      likes: 1500,
-      dDay: 265,
-      isPublic: true,
-      imgSrc: 'edelweiss-public.png', // 공개 그룹의 대표 이미지
-    },
-    {
-      id: 4,
-      title: '에델바이스',
-      description: '서로 한 마음으로 응원하고 아끼는 달봉이네 가족입니다.',
-      badges: 2,
-      memories: 8,
-      likes: 1500,
-      dDay: 265,
-      isPublic: true,
-      imgSrc: 'edelweiss-public.png', // 공개 그룹의 대표 이미지
-    },
-    {
-      id: 5,
-      title: '에델바이스',
-      description: '서로 한 마음으로 응원하고 아끼는 달봉이네 가족입니다.',
-      badges: 2,
-      memories: 8,
-      likes: 1500,
-      dDay: 265,
-      isPublic: true,
-      imgSrc: 'edelweiss-public.png', // 공개 그룹의 대표 이미지
-    },
-
-    // 추가 목업 그룹 데이터
   ];
 
   const [isPublicSelected, setIsPublicSelected] = useState(true);
@@ -128,7 +93,11 @@ const GroupList = () => {
       {/* 그룹 카드 리스트 */}
       <div className="group-cards">
         {sortedGroups.map((group) => (
-          <div key={group.id} className="group-card">
+          <div
+            key={group.id}
+            className="group-card"
+            onClick={() => navigate(`/group/${group.id}`)} // 그룹 클릭 시 그룹 상세 페이지로 이동
+          >
             {/* 공개 그룹일 때만 이미지를 출력 */}
             {group.isPublic && (
               <img
