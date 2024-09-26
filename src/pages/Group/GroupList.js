@@ -55,12 +55,11 @@ const GroupList = () => {
   return (
     <div className="group-list-container">
       {/* 상단 헤더 */}
-      <header className="group-list-header">
-        <div className="logo-container">
-          <img src="/jogakzip1.svg" alt="조각집 로고" className="logo" />
-        </div>
+      
+      <div className="group-list-header">
+        <h3>그룹 목록</h3>
         <button className="create-group-btn" onClick={() => navigate('/create-group')}>그룹 만들기</button>
-      </header>
+      </div>
 
       {/* 필터, 검색 및 정렬 옵션 */}
       <div className="group-list-controls">
