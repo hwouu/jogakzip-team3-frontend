@@ -12,7 +12,6 @@ function CreateGroup() {
     <div className="create-group-page">
       {/* 상단 로고 아이콘 추가 */}
       <div className="header">
-        <img src="jogakzip1.svg" alt="조각집 로고" className="icon" />
         <h2>그룹 만들기</h2>
       </div>
 
