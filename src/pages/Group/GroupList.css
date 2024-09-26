@@ -21,19 +21,16 @@
   position: relative;
 }
 
-.logo-container {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+
+.group-list-header h3 {
+  font-size: 1.8rem;
+  padding-left: 170px;
+  margin-bottom: 20px;
+  text-align: center;
+  flex-grow: 1;
 }
 
-.logo {
-  width: 100%;
-  position: relative;
-  max-width: 100%;
-  overflow: hidden;
-  height: 48px;
-}
+
 
 .create-group-btn {
   background-color: #282828;
@@ -46,6 +43,11 @@
   cursor: pointer;
   width: 200px;
   height: 45px;
+  white-space: nowrap; /* 버튼의 텍스트가 한 줄에 유지되도록 */
+}
+
+.create-group-btn:hover {
+  background-color: #444;
 }
 
 /* 공개/비공개 및 검색바 */
@@ -144,6 +146,7 @@
   width: 335px;
   height: 335px;
   object-fit: cover;
+  border-radius: 10px;
 }
 
 .group-card-info {
