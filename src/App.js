@@ -1,22 +1,29 @@
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
-import Home from './pages/Home';
-import GroupList from './pages/GroupList';
-import CreatePost from './pages/CreatePost';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import GroupList from "./pages/Group/GroupList"; // 그룹 리스트 페이지 임포트
+import CreatePost from "./pages/Post/CreatePost"; // 게시글 작성 페이지 임포트
+import CreateGroup from "./pages/Group/CreateGroup"; // 그룹 생성 페이지 임포트
+import GroupDetail from "./pages/Group/GroupDetail"; // 그룹 상세 페이지 임포트
+import Header from "./components/Header"; // 헤더 임포트
 
 function App() {
   return (
     <Router>
-      <nav>
-        <ul>
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/groups">Groups</Link></li>
-          <li><Link to="/create-post">Create Post</Link></li>
-        </ul>
-      </nav>
+      {/* 모든 페이지 상단에 공통적으로 표시될 헤더 */}
+      <Header />
+
+      {/* 페이지 라우팅 */}
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/groups" element={<GroupList />} />
-        <Route path="/create-post" element={<CreatePost />} />
+        <Route path="/" element={<GroupList />} />{" "}
+        {/* 기본 페이지를 GroupList로 설정 */}
+        <Route path="/groups" element={<GroupList />} />{" "}
+        {/* 그룹 목록 페이지 */}
+        <Route path="/create-post" element={<CreatePost />} />{" "}
+        {/* 게시글 작성 페이지 */}
+        <Route path="/create-group" element={<CreateGroup />} />{" "}
+        {/* 그룹 생성 페이지 */}
+        <Route path="/group/:id" element={<GroupDetail />} />{" "}
+        {/* 그룹 상세 페이지 */}
       </Routes>
     </Router>
   );

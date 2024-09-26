@@ -1,0 +1,189 @@
+/* 전체 레이아웃 */
+.group-list-container {
+  width: 100%;
+  max-width: 1560px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* 공통 폰트 설정 */
+* {
+  font-family: "Spoqa Han Sans Neo", sans-serif;
+}
+
+/* 헤더 */
+.group-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 26px;
+  margin-bottom: 26px;
+  position: relative;
+}
+
+
+.group-list-header h3 {
+  font-size: 1.8rem;
+  padding-left: 170px;
+  margin-bottom: 20px;
+  text-align: center;
+  flex-grow: 1;
+}
+
+
+
+.create-group-btn {
+  background-color: #282828;
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 200px;
+  height: 45px;
+  white-space: nowrap; /* 버튼의 텍스트가 한 줄에 유지되도록 */
+}
+
+.create-group-btn:hover {
+  background-color: #444;
+}
+
+/* 공개/비공개 및 검색바 */
+.group-list-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 50px;
+  margin-bottom: 50px;
+}
+
+.privacy-toggle {
+  display: flex;
+  gap: 10px;
+}
+
+.public-btn,
+.private-btn {
+  background-color: #fafafa;
+  color: #282828;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 10px 15px;
+  border: 1px solid #b8b8b8;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.public-btn.active,
+.private-btn.active {
+  background-color: #282828;
+  color: #fafafa;
+}
+
+/* 검색창 전체 컨테이너 */
+.search-container {
+  position: relative;
+  width: 1186px;
+  height: 45px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+}
+
+/* 돋보기 아이콘 스타일 */
+.search-icon {
+  position: absolute;
+  overflow: hidden;
+  left: 15px;
+  width: 30px; /* 아이콘 크기 */
+  height: 20px;
+  
+}
+
+/* 검색창 입력 필드 스타일 */
+.search-input {
+  width: 100%;
+  padding-left: 50px; /* 아이콘이 들어갈 공간을 확보하기 위해 padding 추가 */
+  font-weight: 400;
+  font-size: 14px;
+  border-radius: 6px;
+  background-color: #f4f4f4;
+  border: none;
+  height: 45px;
+}
+
+.sort-select {
+  width: 160px;
+  padding: 10px;
+  border-radius: 5px;
+  font-weight: 400;
+  font-size: 14px;
+}
+
+/* 그룹 카드 레이아웃 */
+.group-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 한 줄에 4개 */
+  gap: 20px;
+}
+
+/* 그룹 카드 */
+.group-card {
+  border: 1px solid #b8b8b8;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex; /* Flexbox 적용 */
+  flex-direction: column; /* 수직 정렬 */
+  align-items: center; /* 가로 가운데 정렬 */
+  justify-content: center; /* 세로 가운데 정렬 */
+  padding: 15px; /* 패딩 추가 */
+}
+
+/* 그룹 카드 이미지 */
+.group-card-img {
+  width: 335px;
+  height: 335px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.group-card-info {
+  padding: 15px;
+}
+
+.group-card-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 400;
+  font-size: 14px;
+  color: #282828;
+}
+
+.public,
+.private {
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.group-title {
+  font-weight: 700;
+  font-size: 16px;
+  color: #282828;
+  margin: 10px 0;
+}
+
+.group-description {
+  font-weight: 400;
+  font-size: 14px;
+  color: #282828;
+}
+
+.group-stats {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 400;
+  font-size: 12px;
+  color: #b8b8b8;
+}
