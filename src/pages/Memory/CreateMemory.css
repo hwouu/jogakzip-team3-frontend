@@ -13,9 +13,9 @@ h1 {
 .form-container {
   display: flex;
   justify-content: center;
-  width: calc(100% - 960px); /* 페이지 양 옆에 480px씩 남기도록 설정 */
+  width: calc(100% - 960px);
   max-width: 1200px;
-  gap: 80px; /* 양쪽 80px씩 띄우기 */
+  gap: 80px;
 }
 
 .form-left,
@@ -28,17 +28,17 @@ h1 {
 label {
   font-size: 16px;
   font-weight: bold;
-  margin-bottom: 10px; /* label과 input 사이 간격 설정 */
+  margin-bottom: 10px;
 }
 
 input,
 textarea {
-  margin-bottom: 40px; /* label과 input 사이의 간격을 40px로 설정 */
+  margin-bottom: 40px;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
   width: 450px;
-  height: 35px;
+  height: 45px;
 }
 
 textarea {
@@ -61,14 +61,15 @@ textarea {
 .toggle {
   display: flex;
   align-items: center;
-  gap: 10px; /* 공개/비공개와 토글 사이 간격 설정 */
+  gap: 10px;
+  margin-bottom: 40px;
 }
 
 .switch {
   position: relative;
   display: inline-block;
-  width: 45px; /* 토글 크기 축소 */
-  height: 24px; /* 토글 크기 축소 */
+  width: 45px;
+  height: 24px;
 }
 
 .switch input {
@@ -106,11 +107,11 @@ input:checked + .slider {
 }
 
 input:checked + .slider:before {
-  transform: translateX(21px); /* 크기에 맞게 슬라이더 이동 */
+  transform: translateX(21px);
 }
 
-.submit-btn {
-  margin-top: 40px;
+.memory-submit-btn {
+  margin-top: 20px;
   padding: 15px;
   width: 400px;
   background-color: #282828;
@@ -122,6 +123,11 @@ input:checked + .slider:before {
   text-align: center;
 }
 
-.submit-btn:hover {
+.memory-submit-btn:hover {
   background-color: #444;
+}
+
+.error-message {
+  color: red;
+  font-size: 14px;
 }
