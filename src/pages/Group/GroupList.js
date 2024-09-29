@@ -120,7 +120,7 @@ const GroupList = () => {
           <div
             key={group.id}
             className="group-card"
-            onClick={() => navigate(`/group/${group.id}`)} // 그룹 클릭 시 그룹 상세 페이지로 이동
+            onClick={() => navigate(`/groups/${group.id}`)} // 그룹 클릭 시 그룹 상세 페이지로 이동
           >
             {/* 공개 그룹일 때만 이미지를 출력 */}
             {group.isPublic && (
