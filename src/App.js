@@ -18,9 +18,9 @@ function App() {
         <Route path="/" element={<GroupList />} /> {/* 기본 페이지를 GroupList로 설정 */}
         <Route path="/groups" element={<GroupList />} /> {/* 그룹 목록 페이지 */}
         <Route path="/create-group" element={<CreateGroup />} /> {/* 그룹 생성 페이지 */}
-        <Route path="/group/:groupId" element={<GroupDetail />} /> {/* 그룹 상세 페이지 */}
-        <Route path="/group/:groupId/create-memory" element={<CreateMemory />} /> {/* 특정 그룹에 대한 게시글 작성 페이지 */}
-        <Route path="/group/:groupId/memory/:memoryId" element={<MemoryDetail />} /> {/* 특정 그룹 내 추억 상세 페이지 */}
+        <Route path="/groups/:groupId" element={<GroupDetail />} /> {/* 그룹 상세 페이지 */}
+        <Route path="/groups/:groupId/create-memory" element={<CreateMemory />} /> {/* 특정 그룹에 대한 게시글 작성 페이지 */}
+        <Route path="/groups/:groupId/memory/:memoryId" element={<MemoryDetail />} /> {/* 특정 그룹 내 추억 상세 페이지 */}
       </Routes>
     </Router>
   );
