@@ -1,7 +1,11 @@
 import React, { useState } from "react";
+import { useNavigate, useParams } from "react-router-dom"; // useParams 추가
 import "./GroupDetail.css"; // 고유한 스타일 적용
 
 const GroupDetail = () => {
+  const navigate = useNavigate(); // navigate 함수 정의
+  const { groupId } = useParams(); // 현재 경로에서 groupId 추출
+
   const [groupData, setGroupData] = useState({
     id: 1,
     name: "달봉이네 가족",
@@ -21,7 +25,7 @@ const GroupDetail = () => {
   const [memories, setMemories] = useState([
     {
       id: 1,
-      title: "에델바이스 꽃말이 소중한 추억인데 길어지면... 어떻게 될까요 이렇게 되지요",
+      title: "에델바이스 꽃말이 소중한 추억인데 길어지면...",
       tags: ["#태그", "#김연", "#인천", "#낚시"],
       date: "24.01.19",
       location: "인천 앞바다",
@@ -75,6 +79,11 @@ const GroupDetail = () => {
 
     return isVisible && searchMatch;
   });
+
+  // 추억 올리기 버튼 클릭 시 페이지 이동
+  const handleCreateMemoryClick = () => {
+    navigate(`/groups/${groupId}/create-memory`); // 현재 groupId를 기반으로 경로 설정
+  };
 
   return (
     <div className="group-detail-container">
@@ -132,7 +141,12 @@ const GroupDetail = () => {
       <div className="memory-section">
         <div className="memory-header">
           <h3>추억 목록</h3>
-          <button className="memory-upload-btn">추억 올리기</button>
+          <button
+            className="memory-upload-btn"
+            onClick={handleCreateMemoryClick} // 추억 올리기 클릭 시 라우팅
+          >
+            추억 올리기
+          </button>
         </div>
 
         <div className="memory-controls">
@@ -187,7 +201,7 @@ const GroupDetail = () => {
                       {memory.isPublic ? "공개" : "비공개"}
                     </span>
                   </div>
-                  <h4 className="memory-card-title">{memory.title}</h4>
+                  <h4 className="memory-title">{memory.title}</h4>
                   <p className="memory-tags">{memory.tags.join(" ")}</p>
                   <div className="memory-footer">
                     <div className="memory-location">
