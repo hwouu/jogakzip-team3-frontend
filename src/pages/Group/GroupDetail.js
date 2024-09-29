@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import './GroupDetail.css'; // 스타일링 적용
 
 const GroupDetail = () => {
-  const { id } = useParams();
+  const { groupId } = useParams(); // URL에서 groupId를 가져옴
   const [groupData, setGroupData] = useState(null);
   const [isProtected, setIsProtected] = useState(false);
   const [inputPassword, setInputPassword] = useState('');
@@ -13,51 +13,24 @@ const GroupDetail = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortCriteria, setSortCriteria] = useState('likes');
 
-  // 그룹 데이터를 API에서 가져오는 함수 (예시)
+  // 그룹 데이터를 API에서 가져오는 함수
   useEffect(() => {
-    const mockGroupDataList = [
-      {
-        id: 1,
-        title: '달봉이네 가족',
-        description: '서로 한 마음으로 응원하고 아끼는 달봉이네 가족입니다.',
-        badges: [
-          { id: 1, name: '7월 연속 추억 획득' },
-          { id: 2, name: '그룹 공감 1만 이상 받기' },
-          { id: 3, name: '추억 공감 1만 이상 받기' },
-        ],
-        memories: 8,
-        likes: 1500,
-        dDay: 265,
-        isPublic: true,
-        imgSrc: '/dalbong.png',
-        password: null, // 공개 그룹은 비밀번호가 없음
-      },
-      {
-        id: 2,
-        title: '안개꽃',
-        description: '작은 순간을 함께 기억하는 꽃같은 우리들',
-        badges: [
-          { id: 1, name: '그룹 공감 1만 이상 받기' },
-          { id: 2, name: '7월 순수 추억 획득' },
-        ],
-        memories: 80,
-        likes: 900,
-        dDay: 180,
-        isPublic: false,
-        imgSrc: null, // 비공개 그룹은 이미지를 출력하지 않음
-        password: 'password123', // 비공개 그룹 비밀번호
-      },
-    ];
+    const fetchGroupData = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/groups/${groupId}`); // 포트를 5000으로 수정
+        if (!response.ok) {
+          throw new Error('그룹 데이터를 불러오지 못했습니다.');
+        }
+        const data = await response.json();
+        setGroupData(data.groupInfo);
+        setIsProtected(!data.groupInfo.isPublic); // 비공개 그룹일 경우 보호 설정
+      } catch (error) {
+        console.error('Error fetching group data:', error);
+      }
+    };
 
-    const selectedGroup = mockGroupDataList.find(group => group.id === parseInt(id));
-
-    if (selectedGroup) {
-      setGroupData(selectedGroup);
-      setIsProtected(!selectedGroup.isPublic); // 비공개 그룹일 경우 보호 설정
-    } else {
-      console.error('그룹 데이터를 찾을 수 없습니다.');
-    }
-  }, [id]);
+    fetchGroupData();
+  }, [groupId]);
 
   const handlePasswordSubmit = () => {
     if (inputPassword === groupData.password) {
@@ -99,21 +72,21 @@ const GroupDetail = () => {
   return (
     <div className="group-detail-container">
       <div className="group-header">
-        {groupData.imgSrc && (
+        {groupData.imageUrl && (
           <img
-            src={groupData.imgSrc}
-            alt={groupData.title}
+            src={groupData.imageUrl}
+            alt={groupData.name}
             className="group-img"
           />
         )}
         <div className="group-info">
-          <h1>{groupData.title}</h1>
-          <p>{groupData.description}</p>
+          <h1>{groupData.name}</h1>
+          <p>{groupData.introduction}</p>
           <span>{groupData.isPublic ? '공개' : '비공개'}</span>
-          <span>D+{groupData.dDay}</span>
+          <span>D+{groupData.createdAt}</span>
           <div className="group-stats">
-            <span>추억 {groupData.memories}</span>
-            <span>그룹 공감 {groupData.likes}</span>
+            <span>추억 {groupData.postCount}</span>
+            <span>그룹 공감 {groupData.likeCount}</span>
           </div>
         </div>
         <button className="like-btn" onClick={handleLike}>공감 보내기</button>
@@ -168,15 +141,15 @@ const GroupDetail = () => {
             .fill()
             .map((_, idx) => (
               <div key={idx} className="memory-card">
-                {groupData.imgSrc && (
+                {groupData.imageUrl && (
                   <img
-                    src={groupData.imgSrc}
+                    src={groupData.imageUrl}
                     alt={`추억 ${idx + 1}`}
                     className="memory-img"
                   />
                 )}
                 <p>
-                  {groupData.title}의 추억을 소중한 추억으로 장식하다 {idx + 1}
+                  {groupData.name}의 추억을 소중한 추억으로 장식하다 {idx + 1}
                 </p>
                 <span>공감 120</span>
               </div>
