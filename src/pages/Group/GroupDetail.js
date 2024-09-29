@@ -21,13 +21,14 @@ const GroupDetail = () => {
   const [memories, setMemories] = useState([
     {
       id: 1,
-      title: "에델바이스 꽃말이 소중한 추억인데 길어지면... ",
+      title: "에델바이스 꽃말이 소중한 추억인데 길어지면... 어떻게 될까요 이렇게 되지요",
       tags: ["#태그", "#김연", "#인천", "#낚시"],
       date: "24.01.19",
       location: "인천 앞바다",
       imageUrl: "/path/to/image.jpg",
       likes: 120,
       comments: 8,
+      isPublic: true,
     },
     {
       id: 2,
@@ -38,13 +39,42 @@ const GroupDetail = () => {
       imageUrl: "/path/to/image.jpg",
       likes: 130,
       comments: 10,
+      isPublic: false,
     },
     // 더미 데이터 추가 가능
   ]);
 
-  const handleLike = () => {
-    alert("공감을 보냈습니다!");
+  const [isPublicSelected, setIsPublicSelected] = useState(true); // 공개/비공개 선택 상태
+  const [searchTerm, setSearchTerm] = useState(""); // 검색어 상태
+
+  // 공개/비공개 토글 핸들러
+  const handleTogglePublic = () => {
+    setIsPublicSelected(true);
   };
+
+  const handleTogglePrivate = () => {
+    setIsPublicSelected(false);
+  };
+
+  // 검색 핸들러
+  const handleSearchChange = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  // 필터링된 추억 리스트
+  const filteredMemories = memories.filter((memory) => {
+    // 공개/비공개 필터
+    const isVisible = isPublicSelected ? memory.isPublic : !memory.isPublic;
+
+    // 검색 필터
+    const searchMatch =
+      memory.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      memory.tags.some((tag) =>
+        tag.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+    return isVisible && searchMatch;
+  });
 
   return (
     <div className="group-detail-container">
@@ -90,7 +120,7 @@ const GroupDetail = () => {
                 ))}
               </div>
             </div>
-            <button className="like-btn" onClick={handleLike}>
+            <button className="like-btn">
               <img src="/like-icon.svg" alt="공감 아이콘" />
               공감 보내기
             </button>
@@ -107,15 +137,31 @@ const GroupDetail = () => {
 
         <div className="memory-controls">
           <div className="privacy-toggle">
-            <button className="public-btn">공개</button>
-            <button className="private-btn">비공개</button>
+            <button
+              className={`public-btn ${isPublicSelected ? "active" : ""}`}
+              onClick={handleTogglePublic}
+            >
+              공개
+            </button>
+            <button
+              className={`private-btn ${!isPublicSelected ? "active" : ""}`}
+              onClick={handleTogglePrivate}
+            >
+              비공개
+            </button>
           </div>
           <div className="memory-search-container">
-            <img src="/search.svg" alt="search-icon" className="memory-search-icon" />
+            <img
+              src="/search.svg"
+              alt="search-icon"
+              className="memory-search-icon"
+            />
             <input
               type="text"
               placeholder="태그 혹은 제목을 입력해 주세요"
               className="memory-search-input"
+              value={searchTerm}
+              onChange={handleSearchChange}
             />
           </div>
           <select className="memory-sort-select">
@@ -124,33 +170,41 @@ const GroupDetail = () => {
           </select>
         </div>
 
-        {/* 추억 카드 */}
+        {/* 필터링된 추억 카드 */}
         <div className="memory-list">
-          {memories.map((memory) => (
-            <div key={memory.id} className="memory-card">
-              <img src={memory.imageUrl} alt={memory.title} className="memory-img" />
-              <div className="memory-info">
-                <div className="memory-meta">
-                  <span className="group-name">{groupData.name}</span>
-                  <span className="public-status">
-                    {groupData.isPublic ? "공개" : "비공개"}
-                  </span>
-                </div>
-                <h4 className="memory-card-title">{memory.title}</h4>
-                <p className="memory-tags">{memory.tags.join(" ")}</p>
-                <div className="memory-footer">
-                  <div className="memory-location">
-                    <span>{memory.location}</span>
-                    <span>{memory.date}</span>
+          {filteredMemories.length > 0 ? (
+            filteredMemories.map((memory) => (
+              <div key={memory.id} className="memory-card">
+                <img
+                  src={memory.imageUrl}
+                  alt={memory.title}
+                  className="memory-img"
+                />
+                <div className="memory-info">
+                  <div className="memory-meta">
+                    <span className="group-name">{groupData.name}</span>
+                    <span className="public-status">
+                      {memory.isPublic ? "공개" : "비공개"}
+                    </span>
                   </div>
-                  <div className="memory-stats">
-                    <span>🌟 {memory.likes}</span>
-                    <span>💬 {memory.comments}</span>
+                  <h4 className="memory-card-title">{memory.title}</h4>
+                  <p className="memory-tags">{memory.tags.join(" ")}</p>
+                  <div className="memory-footer">
+                    <div className="memory-location">
+                      <span>{memory.location}</span>
+                      <span>{memory.date}</span>
+                    </div>
+                    <div className="memory-stats">
+                      <span>🌟 {memory.likes}</span>
+                      <span>💬 {memory.comments}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          ) : (
+            <p className="no-results">검색 결과가 없습니다.</p>
+          )}
         </div>
       </div>
     </div>
