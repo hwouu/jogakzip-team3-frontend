@@ -54,18 +54,8 @@ label {
   text-align: left;
 }
 
-input {
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-bottom: 60px;
-  box-sizing: border-box; /* 모든 input에서 크기 계산을 동일하게 */
-}
-
 .modal-submit-btn {
-  width: 100%;
+  width: 400px;
   padding: 12px;
   background-color: #282828;
   color: white;
