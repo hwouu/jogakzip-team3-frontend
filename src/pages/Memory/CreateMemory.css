@@ -1,16 +1,17 @@
-.create-memory-page {
+/* 고유한 클래스 네이밍을 사용하여 다른 컴포넌트와 충돌 방지 */
+.create-memory-page-custom {
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 40px;
 }
 
-h1 {
+.create-memory-title {
   font-size: 24px;
   margin-bottom: 60px;
 }
 
-.form-container {
+.form-container-custom {
   display: flex;
   justify-content: space-between;
   width: 100%;
@@ -19,8 +20,8 @@ h1 {
   flex-wrap: wrap; /* 화면 크기에 따라 wrap */
 }
 
-.form-left,
-.form-right {
+.form-left-custom,
+.form-right-custom {
   display: flex;
   flex-direction: column;
   flex: 1; /* 양쪽 박스가 동일하게 줄어들도록 설정 */
@@ -60,27 +61,27 @@ textarea {
   opacity: 0.5;
 }
 
-.toggle {
+.toggle-custom {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 40px;
 }
 
-.switch {
+.switch-custom {
   position: relative;
   display: inline-block;
   width: 45px;
   height: 24px;
 }
 
-.switch input {
+.switch-custom input {
   opacity: 0;
   width: 0;
   height: 0;
 }
 
-.slider {
+.slider-custom {
   position: absolute;
   cursor: pointer;
   top: 0;
@@ -92,7 +93,7 @@ textarea {
   border-radius: 24px;
 }
 
-.slider:before {
+.slider-custom:before {
   position: absolute;
   content: '';
   height: 18px;
@@ -104,15 +105,15 @@ textarea {
   border-radius: 50%;
 }
 
-input:checked + .slider {
+input:checked + .slider-custom {
   background-color: #282828;
 }
 
-input:checked + .slider:before {
+input:checked + .slider-custom:before {
   transform: translateX(21px);
 }
 
-.memory-submit-btn {
+.memory-submit-btn-custom {
   margin-top: 20px;
   padding: 15px;
   width: 100%; /* 버튼이 전체 width를 차지하도록 설정 */
@@ -126,24 +127,24 @@ input:checked + .slider:before {
   text-align: center;
 }
 
-.memory-submit-btn:hover {
+.memory-submit-btn-custom:hover {
   background-color: #444;
 }
 
-.error-message {
+.error-message-custom {
   color: red;
   font-size: 14px;
 }
 
 /* 반응형 디자인 */
 @media (max-width: 768px) {
-  .form-container {
+  .form-container-custom {
     flex-direction: column; /* 작은 화면에서는 세로로 배치 */
     gap: 20px;
   }
 
-  .form-left,
-  .form-right {
+  .form-left-custom,
+  .form-right-custom {
     width: 100%; /* 가로 공간을 100% 사용 */
   }
 
@@ -151,7 +152,7 @@ input:checked + .slider:before {
     display: none; /* 작은 화면에서는 벡터선 숨김 */
   }
 
-  .memory-submit-btn {
+  .memory-submit-btn-custom {
     width: 100%; /* 작은 화면에서는 100% */
   }
 }

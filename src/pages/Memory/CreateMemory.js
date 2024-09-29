@@ -33,11 +33,11 @@ function CreateMemory() {
   };
 
   return (
-    <div className="create-memory-page">
-      <h1>추억 올리기</h1>
+    <div className="create-memory-page-custom">
+      <h1 className="create-memory-title">추억 올리기</h1>
 
-      <div className="form-container">
-        <div className="form-left">
+      <div className="form-container-custom">
+        <div className="form-left-custom">
           <label>닉네임</label>
           <input type="text" placeholder="닉네임을 입력해 주세요" />
 
@@ -51,7 +51,7 @@ function CreateMemory() {
           <textarea placeholder="본문 내용을 입력해 주세요" />
         </div>
         <VectorLine /> {/* 가운데 직선 벡터 추가 */}
-        <div className="form-right">
+        <div className="form-right-custom">
           <label>태그</label>
           <input type="text" placeholder="태그를 입력해 주세요" />
 
@@ -62,15 +62,15 @@ function CreateMemory() {
           <input type="date" />
 
           <label>추억 공개 선택</label>
-          <div className="toggle">
+          <div className="toggle-custom">
             <span>{isPublic ? "공개" : "비공개"}</span>
-            <label className="switch">
+            <label className="switch-custom">
               <input
                 type="checkbox"
                 checked={isPublic}
                 onChange={handleToggle}
               />
-              <span className="slider"></span>
+              <span className="slider-custom"></span>
             </label>
           </div>
 
@@ -86,7 +86,7 @@ function CreateMemory() {
         </div>
       </div>
 
-      <button className="memory-submit-btn" onClick={handleOpenModal}>
+      <button className="memory-submit-btn-custom" onClick={handleOpenModal}>
         올리기
       </button>
 
@@ -100,8 +100,8 @@ function CreateMemory() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
-        <button className="modal-submit-btn" onClick={handlePasswordSubmit}>
+        {errorMessage && <p className="error-message-custom">{errorMessage}</p>}
+        <button className="modal-submit-btn-custom" onClick={handlePasswordSubmit}>
           제출하기
         </button>
       </Modal>
