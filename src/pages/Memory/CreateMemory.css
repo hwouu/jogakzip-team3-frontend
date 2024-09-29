@@ -12,17 +12,19 @@ h1 {
 
 .form-container {
   display: flex;
-  justify-content: center;
-  width: calc(100% - 960px);
+  justify-content: space-between;
+  width: 100%;
   max-width: 1200px;
   gap: 80px;
+  flex-wrap: wrap; /* 화면 크기에 따라 wrap */
 }
 
 .form-left,
 .form-right {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  flex: 1; /* 양쪽 박스가 동일하게 줄어들도록 설정 */
+  min-width: 300px; /* 최소 넓이 설정 */
 }
 
 label {
@@ -37,7 +39,7 @@ textarea {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  width: 450px;
+  width: 100%; /* 고정 폭 대신 100%로 설정 */
   height: 45px;
 }
 
@@ -113,7 +115,8 @@ input:checked + .slider:before {
 .memory-submit-btn {
   margin-top: 20px;
   padding: 15px;
-  width: 400px;
+  width: 100%; /* 버튼이 전체 width를 차지하도록 설정 */
+  max-width: 400px; /* 최대 넓이 설정 */
   background-color: #282828;
   color: white;
   font-size: 16px;
@@ -130,4 +133,25 @@ input:checked + .slider:before {
 .error-message {
   color: red;
   font-size: 14px;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .form-container {
+    flex-direction: column; /* 작은 화면에서는 세로로 배치 */
+    gap: 20px;
+  }
+
+  .form-left,
+  .form-right {
+    width: 100%; /* 가로 공간을 100% 사용 */
+  }
+
+  .vector-wrapper {
+    display: none; /* 작은 화면에서는 벡터선 숨김 */
+  }
+
+  .memory-submit-btn {
+    width: 100%; /* 작은 화면에서는 100% */
+  }
 }
