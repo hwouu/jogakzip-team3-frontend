@@ -201,7 +201,7 @@ const GroupDetail = () => {
                       {memory.isPublic ? "공개" : "비공개"}
                     </span>
                   </div>
-                  <h4 className="memory-title">{memory.title}</h4>
+                  <h4 className="memory-card-title">{memory.title}</h4>
                   <p className="memory-tags">{memory.tags.join(" ")}</p>
                   <div className="memory-footer">
                     <div className="memory-location">
