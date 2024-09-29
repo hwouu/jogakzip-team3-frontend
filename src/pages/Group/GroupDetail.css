@@ -236,15 +236,16 @@
 
 .memory-search-icon {
   position: absolute;
+  overflow: hidden;
   left: 15px;
-  width: 30px;
+  width: 30px; /* 아이콘 크기 */
   height: 20px;
 }
 
 .memory-search-input {
   width: 100%;
-  padding: 10px 40px;
-  font-size: 16px;
+  padding-left: 50px;
+  font-size: 14px;
   border-radius: 20px;
   background-color: #f4f4f4;
   border: none;
@@ -256,5 +257,4 @@
   padding: 10px;
   font-size: 14px;
   border-radius: 5px;
-  border: 1px solid #ddd;
 }
