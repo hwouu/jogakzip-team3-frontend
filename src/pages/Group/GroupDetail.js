@@ -18,24 +18,37 @@ const GroupDetail = () => {
     ],
   });
 
-  const [isPublicSelected, setIsPublicSelected] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortCriteria, setSortCriteria] = useState("likes");
+  const [memories, setMemories] = useState([
+    {
+      id: 1,
+      title: "에델바이스 꽃말이 소중한 추억인데 길어지면... ",
+      tags: ["#태그", "#김연", "#인천", "#낚시"],
+      date: "24.01.19",
+      location: "인천 앞바다",
+      imageUrl: "/path/to/image.jpg",
+      likes: 120,
+      comments: 8,
+    },
+    {
+      id: 2,
+      title: "달봉이와 함께한 낚시",
+      tags: ["#가족", "#바다", "#낚시"],
+      date: "24.01.20",
+      location: "서해바다",
+      imageUrl: "/path/to/image.jpg",
+      likes: 130,
+      comments: 10,
+    },
+    // 더미 데이터 추가 가능
+  ]);
 
   const handleLike = () => {
     alert("공감을 보냈습니다!");
   };
 
-  const handleTogglePublic = () => {
-    setIsPublicSelected(true);
-  };
-
-  const handleTogglePrivate = () => {
-    setIsPublicSelected(false);
-  };
-
   return (
     <div className="group-detail-container">
+      {/* 그룹 상세 정보 섹션 */}
       <div className="group-header">
         <img
           src="/path/to/image.jpg"
@@ -78,15 +91,14 @@ const GroupDetail = () => {
               </div>
             </div>
             <button className="like-btn" onClick={handleLike}>
-              <img src="/like-icon.svg" alt="공감 아이콘" />{" "}
-              {/* 공감 아이콘 추가 */}
+              <img src="/like-icon.svg" alt="공감 아이콘" />
               공감 보내기
             </button>
           </div>
         </div>
       </div>
 
-      {/* 추억 목록, 올리기 버튼, 공개/비공개, 검색 및 정렬 */}
+      {/* 추억 목록 섹션 */}
       <div className="memory-section">
         <div className="memory-header">
           <h3>추억 목록</h3>
@@ -95,43 +107,50 @@ const GroupDetail = () => {
 
         <div className="memory-controls">
           <div className="privacy-toggle">
-            <button
-              className={`public-btn ${isPublicSelected ? "active" : ""}`}
-              onClick={handleTogglePublic}
-            >
-              공개
-            </button>
-            <button
-              className={`private-btn ${!isPublicSelected ? "active" : ""}`}
-              onClick={handleTogglePrivate}
-            >
-              비공개
-            </button>
+            <button className="public-btn">공개</button>
+            <button className="private-btn">비공개</button>
           </div>
-
           <div className="memory-search-container">
-            <img
-              src="/search.svg"
-              alt="search-icon"
-              className="memory-search-icon"
-            />
+            <img src="/search.svg" alt="search-icon" className="memory-search-icon" />
             <input
               type="text"
               placeholder="태그 혹은 제목을 입력해 주세요"
               className="memory-search-input"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-
-          <select
-            className="memory-sort-select"
-            value={sortCriteria}
-            onChange={(e) => setSortCriteria(e.target.value)}
-          >
+          <select className="memory-sort-select">
             <option value="likes">공감순</option>
             <option value="recent">최신순</option>
           </select>
+        </div>
+
+        {/* 추억 카드 */}
+        <div className="memory-list">
+          {memories.map((memory) => (
+            <div key={memory.id} className="memory-card">
+              <img src={memory.imageUrl} alt={memory.title} className="memory-img" />
+              <div className="memory-info">
+                <div className="memory-meta">
+                  <span className="group-name">{groupData.name}</span>
+                  <span className="public-status">
+                    {groupData.isPublic ? "공개" : "비공개"}
+                  </span>
+                </div>
+                <h4 className="memory-card-title">{memory.title}</h4>
+                <p className="memory-tags">{memory.tags.join(" ")}</p>
+                <div className="memory-footer">
+                  <div className="memory-location">
+                    <span>{memory.location}</span>
+                    <span>{memory.date}</span>
+                  </div>
+                  <div className="memory-stats">
+                    <span>🌟 {memory.likes}</span>
+                    <span>💬 {memory.comments}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
