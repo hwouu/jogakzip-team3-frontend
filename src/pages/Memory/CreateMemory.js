@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './CreateMemory.css'; // 스타일링 파일
-import Vector from '../../components/Vector'; // 대문자 V 사용
+import VectorLine from '../../components/VectorLine'; // 대문자 V 사용
 
 
 function CreateMemory() {
@@ -29,7 +29,7 @@ function CreateMemory() {
           <textarea placeholder="본문 내용을 입력해 주세요" />
         </div>
 
-        <Vector /> {/* 가운데 직선 벡터 추가 */}
+        <VectorLine /> {/* 가운데 직선 벡터 추가 */}
 
         <div className="form-right">
           <label>태그</label>
