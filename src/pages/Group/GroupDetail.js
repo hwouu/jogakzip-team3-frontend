@@ -1,187 +1,197 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import './GroupDetail.css'; // 스타일링 적용
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import "./GroupDetail.css";
 
 const GroupDetail = () => {
-  const { id } = useParams();
+  const navigate = useNavigate();
+  const { groupId } = useParams();
+
   const [groupData, setGroupData] = useState(null);
-  const [isProtected, setIsProtected] = useState(false);
-  const [inputPassword, setInputPassword] = useState('');
-
-  // 필터 및 검색 상태
+  const [memories, setMemories] = useState([]);
   const [isPublicSelected, setIsPublicSelected] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [sortCriteria, setSortCriteria] = useState('likes');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [hasFetchedMemories, setHasFetchedMemories] = useState(false); // 데이터를 가져왔는지 여부
 
-  // 그룹 데이터를 API에서 가져오는 함수 (예시)
+  // 그룹 정보와 추억 데이터를 API로부터 가져오기
   useEffect(() => {
-    const mockGroupDataList = [
-      {
-        id: 1,
-        title: '달봉이네 가족',
-        description: '서로 한 마음으로 응원하고 아끼는 달봉이네 가족입니다.',
-        badges: [
-          { id: 1, name: '7월 연속 추억 획득' },
-          { id: 2, name: '그룹 공감 1만 이상 받기' },
-          { id: 3, name: '추억 공감 1만 이상 받기' },
-        ],
-        memories: 8,
-        likes: 1500,
-        dDay: 265,
-        isPublic: true,
-        imgSrc: '/dalbong.png',
-        password: null, // 공개 그룹은 비밀번호가 없음
-      },
-      {
-        id: 2,
-        title: '안개꽃',
-        description: '작은 순간을 함께 기억하는 꽃같은 우리들',
-        badges: [
-          { id: 1, name: '그룹 공감 1만 이상 받기' },
-          { id: 2, name: '7월 순수 추억 획득' },
-        ],
-        memories: 80,
-        likes: 900,
-        dDay: 180,
-        isPublic: false,
-        imgSrc: null, // 비공개 그룹은 이미지를 출력하지 않음
-        password: 'password123', // 비공개 그룹 비밀번호
-      },
-    ];
+    const fetchGroupData = async () => {
+      try {
+        // 그룹 상세 정보 가져오기
+        const groupResponse = await axios.get(`http://localhost:5000/api/groups/${groupId}`);
+        setGroupData(groupResponse.data.groupInfo);
+        console.log("그룹 데이터:", groupResponse.data.groupInfo);
 
-    const selectedGroup = mockGroupDataList.find(group => group.id === parseInt(id));
+        /*
+        // 추억 목록 가져오기
+        const memoryResponse = await axios.get(`http://localhost:5000/api/groups/${groupId}/posts`);
+        setMemories(memoryResponse.data.memories); // API 응답에 맞게 설정 필요
+        console.log("추억 목록:", memoryResponse.data.memories);
+        */
 
-    if (selectedGroup) {
-      setGroupData(selectedGroup);
-      setIsProtected(!selectedGroup.isPublic); // 비공개 그룹일 경우 보호 설정
-    } else {
-      console.error('그룹 데이터를 찾을 수 없습니다.');
-    }
-  }, [id]);
+        setHasFetchedMemories(true); // 데이터를 가져온 후 true로 설정
+      } catch (err) {
+        setError("데이터를 불러오는 중 문제가 발생했습니다.");
+        console.error("Error fetching data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handlePasswordSubmit = () => {
-    if (inputPassword === groupData.password) {
-      setIsProtected(false);
-    } else {
-      alert('비밀번호가 일치하지 않습니다.');
-    }
+    fetchGroupData();
+  }, [groupId]);
+
+  // 검색 및 필터 적용
+  const filteredMemories = memories.filter((memory) => {
+    const isVisible = isPublicSelected ? memory.isPublic : !memory.isPublic;
+    const searchMatch =
+      memory.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      memory.tags.some((tag) =>
+        tag.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+    return isVisible && searchMatch;
+  });
+
+  // 추억 올리기 버튼 클릭 시 페이지 이동
+  const handleCreateMemoryClick = () => {
+    navigate(`/groups/${groupId}/create-memory`);
   };
 
-  const handleLike = () => {
-    alert('공감을 보냈습니다!');
-  };
-
-  // 공개/비공개 토글 함수
-  const togglePublicMemories = () => setIsPublicSelected(true);
-  const togglePrivateMemories = () => setIsPublicSelected(false);
-
-  if (!groupData) {
+  if (loading) {
     return <div>로딩 중...</div>;
   }
 
-  if (isProtected) {
-    return (
-      <div className="group-detail-container protected">
-        <h2 className="protected-title">비공개 추억</h2>
-        <p>비공개 추억에 접근하기 위해 권한 확인이 필요합니다.</p>
-        <input
-          type="password"
-          placeholder="추억 비밀번호를 입력해 주세요"
-          className="password-input"
-          value={inputPassword}
-          onChange={(e) => setInputPassword(e.target.value)}
-        />
-        <button className="submit-btn" onClick={handlePasswordSubmit}>제출하기</button>
-      </div>
-    );
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  if (!groupData) {
+    return <div>그룹 정보를 불러오지 못했습니다.</div>;
   }
 
   return (
     <div className="group-detail-container">
+      {/* 그룹 상세 정보 */}
       <div className="group-header">
-        {groupData.imgSrc && (
-          <img
-            src={groupData.imgSrc}
-            alt={groupData.title}
-            className="group-img"
-          />
-        )}
+        <img src={groupData.imageUrl || "/default-group.png"} alt={groupData.name} className="group-img" />
         <div className="group-info">
-          <h1>{groupData.title}</h1>
-          <p>{groupData.description}</p>
-          <span>{groupData.isPublic ? '공개' : '비공개'}</span>
-          <span>D+{groupData.dDay}</span>
-          <div className="group-stats">
-            <span>추억 {groupData.memories}</span>
-            <span>그룹 공감 {groupData.likes}</span>
+          <div className="group-meta-actions">
+            <div className="group-meta">
+              <span>{groupData.createdAt}</span>
+              <span className="public-status">
+                {groupData.isPublic ? "공개" : "비공개"}
+              </span>
+            </div>
+            <div className="group-actions">
+              <button className="edit-btn">그룹 정보 수정하기</button>
+              <button className="delete-btn">그룹 삭제하기</button>
+            </div>
+          </div>
+
+          <div className="group-name-stats">
+            <h1 className="group-detail-title">{groupData.name}</h1>
+            <div className="group-stats-inline">
+              <span>추억 {groupData.postCount}</span>
+              <span>그룹 공감 {groupData.likeCount.toLocaleString()}K</span>
+            </div>
+          </div>
+          <p className="group-description">{groupData.introduction}</p>
+
+          <div className="group-badge-and-like">
+            <div className="group-badges">
+              <h3>획득 배지</h3>
+              <div className="badges-list">
+                {groupData.badges.map((badge) => (
+                  <div key={badge.id} className="badge">
+                    <span className="badge-icon">{badge.icon}</span>
+                    <span className="badge-name">{badge.name}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <button className="like-btn">
+              <img src="/like-icon.svg" alt="공감 아이콘" />
+              공감 보내기
+            </button>
           </div>
         </div>
-        <button className="like-btn" onClick={handleLike}>공감 보내기</button>
       </div>
 
-      {/* 추억 목록과 업로드 버튼 */}
-      <div className="memories-header">
-        <h3>추억 목록</h3>
-        <button className="memory-upload-btn">추억 올리기</button>
-      </div>
-
-      {/* 필터, 검색 및 정렬 옵션 */}
-      <div className="group-list-controls">
-        <div className="privacy-toggle">
-          <button
-            className={`public-btn ${isPublicSelected ? 'active' : ''}`}
-            onClick={togglePublicMemories}
-          >
-            공개
-          </button>
-          <button
-            className={`private-btn ${!isPublicSelected ? 'active' : ''}`}
-            onClick={togglePrivateMemories}
-          >
-            비공개
+      {/* 추억 목록 섹션 */}
+      <div className="memory-section">
+        <div className="memory-header">
+          <h3>추억 목록</h3>
+          <button className="memory-upload-btn" onClick={handleCreateMemoryClick}>
+            추억 올리기
           </button>
         </div>
-        <div className="search-container">
-          <img src="/search.svg" alt="search-icon" className="search-icon" />
-          <input
-            type="text"
-            placeholder="추억을 검색해 주세요"
-            className="search-input"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <select
-          className="sort-select"
-          value={sortCriteria}
-          onChange={(e) => setSortCriteria(e.target.value)}
-        >
-          <option value="likes">공감순</option>
-          <option value="recent">최신순</option>
-        </select>
-      </div>
 
-      {/* 추억 목록 */}
-      <div className="memories-list">
-        <div className="memories-cards">
-          {Array(12)
-            .fill()
-            .map((_, idx) => (
-              <div key={idx} className="memory-card">
-                {groupData.imgSrc && (
-                  <img
-                    src={groupData.imgSrc}
-                    alt={`추억 ${idx + 1}`}
-                    className="memory-img"
-                  />
-                )}
-                <p>
-                  {groupData.title}의 추억을 소중한 추억으로 장식하다 {idx + 1}
-                </p>
-                <span>공감 120</span>
-              </div>
-            ))}
+        <div className="memory-controls">
+          <div className="privacy-toggle">
+            <button className={`public-btn ${isPublicSelected ? "active" : ""}`} onClick={() => setIsPublicSelected(true)}>
+              공개
+            </button>
+            <button className={`private-btn ${!isPublicSelected ? "active" : ""}`} onClick={() => setIsPublicSelected(false)}>
+              비공개
+            </button>
+          </div>
+          <div className="memory-search-container">
+            <img src="/search.svg" alt="search-icon" className="memory-search-icon" />
+            <input
+              type="text"
+              placeholder="태그 혹은 제목을 입력해 주세요"
+              className="memory-search-input"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <select className="memory-sort-select">
+            <option value="likes">공감순</option>
+            <option value="recent">최신순</option>
+          </select>
         </div>
+
+        {/* 추억 목록 또는 빈 목록 상태 */}
+        {hasFetchedMemories && memories.length === 0 ? (
+          <div className="empty-memory">
+            <img src="/empty-posts.png" alt="No posts" className="empty-icon" />
+            <p className="no-results">게시된 추억이 없습니다.</p>
+            <p className="upload-first-memory">첫 번째 추억을 올려보세요!</p>
+          </div>
+        ) : (
+          <div className="memory-list">
+            {filteredMemories.length > 0 ? (
+              filteredMemories.map((memory) => (
+                <div key={memory.id} className="memory-card">
+                  <img src={memory.imageUrl} alt={memory.title} className="memory-img" />
+                  <div className="memory-info">
+                    <div className="memory-meta">
+                      <span className="group-name">{groupData.name}</span>
+                      <span className="public-status">{memory.isPublic ? "공개" : "비공개"}</span>
+                    </div>
+                    <h4 className="memory-card-title">{memory.title}</h4>
+                    <p className="memory-tags">{memory.tags.join(" ")}</p>
+                    <div className="memory-footer">
+                      <div className="memory-location">
+                        <span>{memory.location}</span>
+                        <span>{memory.date}</span>
+                      </div>
+                      <div className="memory-stats">
+                        <span>🌟 {memory.likes}</span>
+                        <span>💬 {memory.comments}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="no-results">검색 결과가 없습니다.</p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
