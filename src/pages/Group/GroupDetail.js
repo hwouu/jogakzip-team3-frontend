@@ -1,76 +1,51 @@
-import React, { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom"; // useParams 추가
-import "./GroupDetail.css"; // 고유한 스타일 적용
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import "./GroupDetail.css";
 
 const GroupDetail = () => {
-  const navigate = useNavigate(); // navigate 함수 정의
-  const { groupId } = useParams(); // 현재 경로에서 groupId 추출
+  const navigate = useNavigate();
+  const { groupId } = useParams();
 
-  const [groupData, setGroupData] = useState({
-    id: 1,
-    name: "달봉이네 가족",
-    description:
-      "서로 한 마음으로 응원하고 아끼는 달봉이네 가족입니다. 서로 한 마음으로 응원하고 아끼는 달봉이네 가족입니다.",
-    isPublic: true,
-    postCount: 8,
-    likeCount: 1500,
-    createdAt: "D+265",
-    badges: [
-      { id: 1, name: "7일 연속 추억 등록", icon: "🏆" },
-      { id: 2, name: "그룹 공감 1만개 이상 받기", icon: "❤️" },
-      { id: 3, name: "게시글 공감 1만개 이상 받기", icon: "💬" },
-    ],
-  });
+  const [groupData, setGroupData] = useState(null);
+  const [memories, setMemories] = useState([]);
+  const [isPublicSelected, setIsPublicSelected] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [hasFetchedMemories, setHasFetchedMemories] = useState(false); // 데이터를 가져왔는지 여부
 
-  const [memories, setMemories] = useState([
-    {
-      id: 1,
-      title: "에델바이스 꽃말이 소중한 추억인데 길어지면...",
-      tags: ["#태그", "#김연", "#인천", "#낚시"],
-      date: "24.01.19",
-      location: "인천 앞바다",
-      imageUrl: "/path/to/image.jpg",
-      likes: 120,
-      comments: 8,
-      isPublic: true,
-    },
-    {
-      id: 2,
-      title: "달봉이와 함께한 낚시",
-      tags: ["#가족", "#바다", "#낚시"],
-      date: "24.01.20",
-      location: "서해바다",
-      imageUrl: "/path/to/image.jpg",
-      likes: 130,
-      comments: 10,
-      isPublic: false,
-    },
-    // 더미 데이터 추가 가능
-  ]);
+  // 그룹 정보와 추억 데이터를 API로부터 가져오기
+  useEffect(() => {
+    const fetchGroupData = async () => {
+      try {
+        // 그룹 상세 정보 가져오기
+        const groupResponse = await axios.get(`http://localhost:5000/api/groups/${groupId}`);
+        setGroupData(groupResponse.data.groupInfo);
+        console.log("그룹 데이터:", groupResponse.data.groupInfo);
 
-  const [isPublicSelected, setIsPublicSelected] = useState(true); // 공개/비공개 선택 상태
-  const [searchTerm, setSearchTerm] = useState(""); // 검색어 상태
+        /*
+        // 추억 목록 가져오기
+        const memoryResponse = await axios.get(`http://localhost:5000/api/groups/${groupId}/posts`);
+        setMemories(memoryResponse.data.memories); // API 응답에 맞게 설정 필요
+        console.log("추억 목록:", memoryResponse.data.memories);
+        */
 
-  // 공개/비공개 토글 핸들러
-  const handleTogglePublic = () => {
-    setIsPublicSelected(true);
-  };
+        setHasFetchedMemories(true); // 데이터를 가져온 후 true로 설정
+      } catch (err) {
+        setError("데이터를 불러오는 중 문제가 발생했습니다.");
+        console.error("Error fetching data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleTogglePrivate = () => {
-    setIsPublicSelected(false);
-  };
+    fetchGroupData();
+  }, [groupId]);
 
-  // 검색 핸들러
-  const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
-  };
-
-  // 필터링된 추억 리스트
+  // 검색 및 필터 적용
   const filteredMemories = memories.filter((memory) => {
-    // 공개/비공개 필터
     const isVisible = isPublicSelected ? memory.isPublic : !memory.isPublic;
-
-    // 검색 필터
     const searchMatch =
       memory.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       memory.tags.some((tag) =>
@@ -82,18 +57,26 @@ const GroupDetail = () => {
 
   // 추억 올리기 버튼 클릭 시 페이지 이동
   const handleCreateMemoryClick = () => {
-    navigate(`/groups/${groupId}/create-memory`); // 현재 groupId를 기반으로 경로 설정
+    navigate(`/groups/${groupId}/create-memory`);
   };
+
+  if (loading) {
+    return <div>로딩 중...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  if (!groupData) {
+    return <div>그룹 정보를 불러오지 못했습니다.</div>;
+  }
 
   return (
     <div className="group-detail-container">
-      {/* 그룹 상세 정보 섹션 */}
+      {/* 그룹 상세 정보 */}
       <div className="group-header">
-        <img
-          src="/path/to/image.jpg"
-          alt={groupData.name}
-          className="group-img"
-        />
+        <img src={groupData.imageUrl || "/default-group.png"} alt={groupData.name} className="group-img" />
         <div className="group-info">
           <div className="group-meta-actions">
             <div className="group-meta">
@@ -112,10 +95,10 @@ const GroupDetail = () => {
             <h1 className="group-detail-title">{groupData.name}</h1>
             <div className="group-stats-inline">
               <span>추억 {groupData.postCount}</span>
-              <span>그룹 공감 {groupData.likeCount}K</span>
+              <span>그룹 공감 {groupData.likeCount.toLocaleString()}K</span>
             </div>
           </div>
-          <p className="group-description">{groupData.description}</p>
+          <p className="group-description">{groupData.introduction}</p>
 
           <div className="group-badge-and-like">
             <div className="group-badges">
@@ -141,41 +124,28 @@ const GroupDetail = () => {
       <div className="memory-section">
         <div className="memory-header">
           <h3>추억 목록</h3>
-          <button
-            className="memory-upload-btn"
-            onClick={handleCreateMemoryClick} // 추억 올리기 클릭 시 라우팅
-          >
+          <button className="memory-upload-btn" onClick={handleCreateMemoryClick}>
             추억 올리기
           </button>
         </div>
 
         <div className="memory-controls">
           <div className="privacy-toggle">
-            <button
-              className={`public-btn ${isPublicSelected ? "active" : ""}`}
-              onClick={handleTogglePublic}
-            >
+            <button className={`public-btn ${isPublicSelected ? "active" : ""}`} onClick={() => setIsPublicSelected(true)}>
               공개
             </button>
-            <button
-              className={`private-btn ${!isPublicSelected ? "active" : ""}`}
-              onClick={handleTogglePrivate}
-            >
+            <button className={`private-btn ${!isPublicSelected ? "active" : ""}`} onClick={() => setIsPublicSelected(false)}>
               비공개
             </button>
           </div>
           <div className="memory-search-container">
-            <img
-              src="/search.svg"
-              alt="search-icon"
-              className="memory-search-icon"
-            />
+            <img src="/search.svg" alt="search-icon" className="memory-search-icon" />
             <input
               type="text"
               placeholder="태그 혹은 제목을 입력해 주세요"
               className="memory-search-input"
               value={searchTerm}
-              onChange={handleSearchChange}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           <select className="memory-sort-select">
@@ -184,42 +154,44 @@ const GroupDetail = () => {
           </select>
         </div>
 
-        {/* 필터링된 추억 카드 */}
-        <div className="memory-list">
-          {filteredMemories.length > 0 ? (
-            filteredMemories.map((memory) => (
-              <div key={memory.id} className="memory-card">
-                <img
-                  src={memory.imageUrl}
-                  alt={memory.title}
-                  className="memory-img"
-                />
-                <div className="memory-info">
-                  <div className="memory-meta">
-                    <span className="group-name">{groupData.name}</span>
-                    <span className="public-status">
-                      {memory.isPublic ? "공개" : "비공개"}
-                    </span>
-                  </div>
-                  <h4 className="memory-card-title">{memory.title}</h4>
-                  <p className="memory-tags">{memory.tags.join(" ")}</p>
-                  <div className="memory-footer">
-                    <div className="memory-location">
-                      <span>{memory.location}</span>
-                      <span>{memory.date}</span>
+        {/* 추억 목록 또는 빈 목록 상태 */}
+        {hasFetchedMemories && memories.length === 0 ? (
+          <div className="empty-memory">
+            <img src="/empty-posts.png" alt="No posts" className="empty-icon" />
+            <p className="no-results">게시된 추억이 없습니다.</p>
+            <p className="upload-first-memory">첫 번째 추억을 올려보세요!</p>
+          </div>
+        ) : (
+          <div className="memory-list">
+            {filteredMemories.length > 0 ? (
+              filteredMemories.map((memory) => (
+                <div key={memory.id} className="memory-card">
+                  <img src={memory.imageUrl} alt={memory.title} className="memory-img" />
+                  <div className="memory-info">
+                    <div className="memory-meta">
+                      <span className="group-name">{groupData.name}</span>
+                      <span className="public-status">{memory.isPublic ? "공개" : "비공개"}</span>
                     </div>
-                    <div className="memory-stats">
-                      <span>🌟 {memory.likes}</span>
-                      <span>💬 {memory.comments}</span>
+                    <h4 className="memory-card-title">{memory.title}</h4>
+                    <p className="memory-tags">{memory.tags.join(" ")}</p>
+                    <div className="memory-footer">
+                      <div className="memory-location">
+                        <span>{memory.location}</span>
+                        <span>{memory.date}</span>
+                      </div>
+                      <div className="memory-stats">
+                        <span>🌟 {memory.likes}</span>
+                        <span>💬 {memory.comments}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))
-          ) : (
-            <p className="no-results">검색 결과가 없습니다.</p>
-          )}
-        </div>
+              ))
+            ) : (
+              <p className="no-results">검색 결과가 없습니다.</p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
