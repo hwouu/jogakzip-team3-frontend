@@ -142,7 +142,7 @@ const GroupList = () => {
               <div className="group-stats">
                 <span>획득 배지 {group.badgeCount}</span>
                 <span>추억 {group.postCount}</span>
-                <span>그룹 공감 {group.likeCount.toLocaleString()}K</span>
+                <span>그룹 공감 {group.likeCount.toLocaleString()}</span>
               </div>
             </div>
           </div>
