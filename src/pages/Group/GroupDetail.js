@@ -8,29 +8,42 @@ const GroupDetail = () => {
   const { groupId } = useParams();
 
   const [groupData, setGroupData] = useState(null);
-  const [memories, setMemories] = useState([]);
+  const [memories, setMemories] = useState([]);  // 초기값을 빈 배열로 설정
   const [isPublicSelected, setIsPublicSelected] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [hasFetchedMemories, setHasFetchedMemories] = useState(false); // 데이터를 가져왔는지 여부
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [hasFetchedMemories, setHasFetchedMemories] = useState(false); //
+  const [editGroupData, setEditGroupData] = useState({
+    name: '',
+    imageUrl: '',
+    introduction: '',
+    isPublic: false,
+    password: '',
+  });
 
   // 그룹 정보와 추억 데이터를 API로부터 가져오기
   useEffect(() => {
     const fetchGroupData = async () => {
       try {
-        // 그룹 상세 정보 가져오기
         const groupResponse = await axios.get(`http://localhost:5000/api/groups/${groupId}`);
         setGroupData(groupResponse.data.groupInfo);
-        console.log("그룹 데이터:", groupResponse.data.groupInfo);
+        setEditGroupData({
+          name: groupResponse.data.groupInfo.name,
+          imageUrl: groupResponse.data.groupInfo.imageUrl,
+          introduction: groupResponse.data.groupInfo.introduction,
+          isPublic: groupResponse.data.groupInfo.isPublic,
+          password: '', // 초기 비밀번호는 빈 값
+        });
 
         /*
+
         // 추억 목록 가져오기
         const memoryResponse = await axios.get(`http://localhost:5000/api/groups/${groupId}/posts`);
         setMemories(memoryResponse.data.memories); // API 응답에 맞게 설정 필요
-        console.log("추억 목록:", memoryResponse.data.memories);
         */
-
         setHasFetchedMemories(true); // 데이터를 가져온 후 true로 설정
       } catch (err) {
         setError("데이터를 불러오는 중 문제가 발생했습니다.");
@@ -39,11 +52,40 @@ const GroupDetail = () => {
         setLoading(false);
       }
     };
-
     fetchGroupData();
   }, [groupId]);
 
-  // 검색 및 필터 적용
+  // 모달 열기/닫기 함수
+  const handleEditGroupClick = () => setIsEditModalOpen(true);
+  const handleDeleteGroupClick = () => setIsDeleteModalOpen(true);
+
+  // 그룹 수정 제출 함수
+  const handleEditGroupSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.put(`http://localhost:5000/api/groups/${groupId}`, editGroupData);
+      alert("그룹 정보가 성공적으로 수정되었습니다.");
+      setIsEditModalOpen(false); // 모달 닫기
+      // 그룹 정보를 다시 로드하거나 상태 업데이트
+    } catch (error) {
+      alert("그룹 정보 수정에 실패했습니다.");
+    }
+  };
+
+  // 그룹 삭제 제출 함수
+  const handleDeleteGroupSubmit = async () => {
+    try {
+      await axios.delete(`http://localhost:5000/api/groups/${groupId}`, {
+        data: { password: editGroupData.password }, // 비밀번호를 사용해 삭제 요청
+      });
+      alert("그룹이 성공적으로 삭제되었습니다.");
+      navigate("/groups"); // 삭제 후 그룹 목록으로 이동
+    } catch (error) {
+      alert("그룹 삭제에 실패했습니다.");
+    }
+  };
+
+  // 추억 검색 및 필터링
   const filteredMemories = memories.filter((memory) => {
     const isVisible = isPublicSelected ? memory.isPublic : !memory.isPublic;
     const searchMatch =
@@ -86,8 +128,8 @@ const GroupDetail = () => {
               </span>
             </div>
             <div className="group-actions">
-              <button className="edit-btn">그룹 정보 수정하기</button>
-              <button className="delete-btn">그룹 삭제하기</button>
+              <button className="edit-btn" onClick={handleEditGroupClick}>그룹 정보 수정하기</button>
+              <button className="delete-btn" onClick={handleDeleteGroupClick}>그룹 삭제하기</button>
             </div>
           </div>
 
@@ -193,6 +235,73 @@ const GroupDetail = () => {
           </div>
         )}
       </div>
+
+      {/* 그룹 수정 모달 */}
+      {isEditModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>그룹 정보 수정</h2>
+            <button className="close-modal" onClick={() => setIsEditModalOpen(false)}>X</button>
+            <form onSubmit={handleEditGroupSubmit}>
+              <input
+                type="text"
+                className="modal-input"
+                placeholder="그룹명"
+                value={editGroupData.name}
+                onChange={(e) => setEditGroupData({ ...editGroupData, name: e.target.value })}
+              />
+              <input
+                type="text"
+                className="modal-input"
+                placeholder="대표 이미지 URL"
+                value={editGroupData.imageUrl}
+                onChange={(e) => setEditGroupData({ ...editGroupData, imageUrl: e.target.value })}
+              />
+              <textarea
+                className="modal-input"
+                placeholder="그룹 소개"
+                value={editGroupData.introduction}
+                onChange={(e) => setEditGroupData({ ...editGroupData, introduction: e.target.value })}
+              />
+              <label>
+                그룹 공개 여부
+                <input
+                  type="checkbox"
+                  checked={editGroupData.isPublic}
+                  onChange={(e) => setEditGroupData({ ...editGroupData, isPublic: e.target.checked })}
+                />
+              </label>
+              <input
+                type="password"
+                className="modal-input"
+                placeholder="비밀번호"
+                value={editGroupData.password}
+                onChange={(e) => setEditGroupData({ ...editGroupData, password: e.target.value })}
+              />
+              <button type="submit" className="modal-submit">수정하기</button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 그룹 삭제 모달 */}
+      {isDeleteModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>그룹 삭제</h2>
+            <button className="close-modal" onClick={() => setIsDeleteModalOpen(false)}>X</button>
+            <p>그룹을 삭제하려면 비밀번호를 입력하세요:</p>
+            <input
+              type="password"
+              className="modal-input"
+              placeholder="비밀번호"
+              value={editGroupData.password}
+              onChange={(e) => setEditGroupData({ ...editGroupData, password: e.target.value })}
+            />
+            <button className="modal-submit" onClick={handleDeleteGroupSubmit}>삭제하기</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
