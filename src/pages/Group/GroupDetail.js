@@ -39,7 +39,6 @@ const GroupDetail = () => {
         });
 
         /*
-
         // 추억 목록 가져오기
         const memoryResponse = await axios.get(`http://localhost:5000/api/groups/${groupId}/posts`);
         setMemories(memoryResponse.data.memories); // API 응답에 맞게 설정 필요
@@ -54,6 +53,22 @@ const GroupDetail = () => {
     };
     fetchGroupData();
   }, [groupId]);
+
+  // 공감 보내기 함수
+  const likeGroup = async () => {
+    try {
+      await axios.post(`http://localhost:5000/api/groups/${groupId}/like`);
+      alert("공감을 보냈습니다!");
+
+      // 공감 수 업데이트
+      setGroupData((prevData) => ({
+        ...prevData,
+        likeCount: prevData.likeCount + 1,
+      }));
+    } catch (error) {
+      alert("공감 보내기에 실패했습니다.");
+    }
+  };
 
   // 모달 열기/닫기 함수
   const handleEditGroupClick = () => setIsEditModalOpen(true);
@@ -137,7 +152,7 @@ const GroupDetail = () => {
             <h1 className="group-detail-title">{groupData.name}</h1>
             <div className="group-stats-inline">
               <span>추억 {groupData.postCount}</span>
-              <span>그룹 공감 {groupData.likeCount.toLocaleString()}K</span>
+              <span>그룹 공감 {groupData.likeCount.toLocaleString()}</span>
             </div>
           </div>
           <p className="group-description">{groupData.introduction}</p>
@@ -154,7 +169,7 @@ const GroupDetail = () => {
                 ))}
               </div>
             </div>
-            <button className="like-btn">
+            <button className="like-btn" onClick={likeGroup}>
               <img src="/like-icon.svg" alt="공감 아이콘" />
               공감 보내기
             </button>
