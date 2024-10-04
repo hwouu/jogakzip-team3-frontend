@@ -30,18 +30,18 @@ function MemoryDetail() {
         const response = await axios.get(`/api/posts/${memoryId}`);
         const memory = response.data;
         setMemoryData(memory);
-        setLikeCount(memory.likeCount);
+        setLikeCount(memory.LikeCount);
 
-        if (!memory.isPublic) {
+        if (!memory.IsPublic) {
           setIsPasswordRequired(true);
         }
 
         setEditData({
-          title: memory.title,
-          content: memory.content,
-          tags: memory.tags.join(", "),
-          location: memory.location,
-          moment: memory.moment,
+          title: memory.Title,
+          content: memory.Content,
+          tags: memory.postTags ? memory.postTags.map(pt => pt.tag.Name).join(", ") : "",
+          location: memory.Location,
+          moment: memory.MemoryMoment,
         });
       } catch (error) {
         console.error("Error fetching memory data:", error);
@@ -53,8 +53,8 @@ function MemoryDetail() {
 
   const handleLike = async () => {
     try {
-      await axios.post(`/api/posts/${memoryId}/like`);
-      setLikeCount(likeCount + 1);
+      const response = await axios.post(`/api/posts/${memoryId}/like`);
+      setLikeCount(response.data.likes);
     } catch (error) {
       console.error("Error sending like:", error);
     }
@@ -76,7 +76,7 @@ function MemoryDetail() {
 
   const handleDeleteSubmit = async () => {
     try {
-      await axios.delete(`/api/posts/${memoryId}`, { data: { postPassword: password } });
+      await axios.delete(`/api/posts/${memoryId}`, { data: { PPassword: password } });
       alert("게시글이 성공적으로 삭제되었습니다.");
       navigate(`/groups/${groupId}`);
     } catch (error) {
@@ -87,10 +87,10 @@ function MemoryDetail() {
   const handlePasswordSubmit = async () => {
     try {
       const response = await axios.post(`/api/posts/${memoryId}/verify-password`, {
-        postPassword: password,
+        password: password,
       });
 
-      if (response.data.verified) {
+      if (response.data.access) {
         setIsPasswordRequired(false);
       } else {
         setErrorMessage("비밀번호가 일치하지 않습니다.");
@@ -126,10 +126,10 @@ function MemoryDetail() {
     <div className="memory-detail-page">
       <div className="memory-detail-header">
         <div className="header-left">
-          <span className="username">{memoryData.nickname}</span>
+          <span className="username">{memoryData.Nickname}</span>
           <span className="divider">|</span>
           <span className="public-status">
-            {memoryData.isPublic ? "공개" : "비공개"}
+            {memoryData.IsPublic ? "공개" : "비공개"}
           </span>
         </div>
 
@@ -142,11 +142,11 @@ function MemoryDetail() {
           </button>
         </div>
 
-        <h1 className="memory-title">{memoryData.title}</h1>
+        <h1 className="memory-title">{memoryData.Title}</h1>
 
         <div className="tags">
-          {memoryData.tags.map((tag, index) => (
-            <span key={index}>{tag}</span>
+          {memoryData.postTags && memoryData.postTags.map((postTag, index) => (
+            <span key={index}>{postTag.tag.Name}</span>
           ))}
         </div>
 
@@ -157,17 +157,17 @@ function MemoryDetail() {
         </div>
 
         <div className="memory-info">
-          <span className="place">{memoryData.location}</span>
+          <span className="place">{memoryData.Location}</span>
           <span className="divider">·</span>
-          <span className="date">{memoryData.moment}</span>
+          <span className="date">{new Date(memoryData.MemoryMoment).toLocaleDateString()}</span>
           <span className="divider">·</span>
           <span className="like-count">🌸 {likeCount}</span>
         </div>
       </div>
 
       <div className="memory-content">
-        <img src={memoryData.imageUrl} alt="Memory" className="memory-image" />
-        {memoryData.content.split("\n").map((line, index) => (
+        <img src={memoryData.Image} alt="Memory" className="memory-image" />
+        {memoryData.Content.split("\n").map((line, index) => (
           <p key={index} className="memory-text">
             {line}
           </p>
