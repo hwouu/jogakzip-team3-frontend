@@ -23,7 +23,6 @@ const GroupDetail = () => {
     isPublic: false,
     password: '',
   });
-
   // 그룹 정보와 추억 데이터를 API로부터 가져오기
   useEffect(() => {
     const fetchGroupData = async () => {
@@ -40,13 +39,11 @@ const GroupDetail = () => {
 
         if (!groupResponse.data.groupInfo.isPublic) {
           navigate(`/groups/${groupId}/private-access`);
+        } else {
+          // 추억 목록 가져오기
+          const memoryResponse = await axios.get(`http://localhost:5000/api/groups/${groupId}/posts`);
+          setMemories(memoryResponse.data.memories); // API 응답에 맞게 설정
         }
-
-        /*
-        // 추억 목록 가져오기
-        const memoryResponse = await axios.get(`http://localhost:5000/api/groups/${groupId}/posts`);
-        setMemories(memoryResponse.data.memories); // API 응답에 맞게 설정 필요
-        */
         setHasFetchedMemories(true); // 데이터를 가져온 후 true로 설정
       } catch (err) {
         setError("데이터를 불러오는 중 문제가 발생했습니다.");
@@ -105,7 +102,7 @@ const GroupDetail = () => {
   };
 
   // 추억 검색 및 필터링
-  const filteredMemories = memories.filter((memory) => {
+  const filteredMemories = memories ? memories.filter((memory) => {
     const isVisible = isPublicSelected ? memory.isPublic : !memory.isPublic;
     const searchMatch =
       memory.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -114,7 +111,7 @@ const GroupDetail = () => {
       );
 
     return isVisible && searchMatch;
-  });
+  }) : [];
 
   // 추억 올리기 버튼 클릭 시 페이지 이동
   const handleCreateMemoryClick = () => {
@@ -216,7 +213,9 @@ const GroupDetail = () => {
         </div>
 
         {/* 추억 목록 또는 빈 목록 상태 */}
-        {hasFetchedMemories && memories.length === 0 ? (
+        {loading ? (
+          <div>로딩 중...</div>
+        ) : hasFetchedMemories && (!memories || memories.length === 0) ? (
           <div className="empty-memory">
             <img src="/empty-posts.png" alt="No posts" className="empty-icon" />
             <p className="no-results">게시된 추억이 없습니다.</p>

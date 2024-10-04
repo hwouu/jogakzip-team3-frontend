@@ -5,6 +5,9 @@ import "./CreateMemory.css";
 import Modal from "../../components/Modal";
 import VectorLine from "../../components/VectorLine";
 
+// 파일 상단에 baseURL을 정의합니다.
+const baseURL = "http://localhost:5000"; // 또는 실제 API 서버의 주소
+
 function CreateMemory() {
   const { groupId } = useParams();
   const navigate = useNavigate();
@@ -51,9 +54,10 @@ function CreateMemory() {
     }));
   };
 
+  // handlePasswordSubmit 함수를 수정합니다.
   const handlePasswordSubmit = async () => {
     try {
-      const response = await axios.post(`/api/groups/${groupId}/verify-password`, { password: groupPassword });
+      const response = await axios.post(`${baseURL}/api/groups/${groupId}/verify-password`, { password: groupPassword });
       if (response.status === 200) {
         setErrorMessage("");
         handleSubmit();
@@ -64,40 +68,79 @@ function CreateMemory() {
         setErrorMessage("비밀번호가 일치하지 않습니다.");
       } else {
         setErrorMessage("비밀번호 확인 중 오류가 발생했습니다.");
+        console.error("Error details:", error);
       }
     }
   };
 
+  // handleSubmit 함수도 수정합니다.
   const handleSubmit = async () => {
     const memoryData = new FormData();
     memoryData.append("nickname", formData.nickname);
     memoryData.append("title", formData.title);
     memoryData.append("content", formData.content);
-    memoryData.append("tags", formData.tags);
-    memoryData.append("location", formData.location);
-    memoryData.append("moment", formData.moment);
-    memoryData.append("isPublic", isPublic);
+    memoryData.append("isPublic", isPublic.toString());
     memoryData.append("postPassword", formData.postPassword);
-
+    
     if (formData.imageFile) {
-      memoryData.append("imageURL", formData.imageFile);
+      memoryData.append("imageUrl", formData.imageFile);
+    }
+    
+    if (formData.location) {
+      memoryData.append("location", formData.location);
+    }
+    
+    if (formData.moment) {
+      memoryData.append("moment", formData.moment);
+    }
+
+    if (formData.tags) {
+      memoryData.append("tags", JSON.stringify(formData.tags.split(',').map(tag => tag.trim())));
+    }
+
+    console.log("Sending data to server:");
+    for (let [key, value] of memoryData.entries()) {
+      console.log(key, typeof value, value);
     }
 
     try {
-      await axios.post(`/api/groups/${groupId}/posts`, memoryData, {
+      const response = await axios.post(`${baseURL}/api/groups/${groupId}/posts`, memoryData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
 
+      console.log("Server response:", response.data);
       alert("추억이 성공적으로 등록되었습니다!");
       navigate(`/groups/${groupId}`);
     } catch (error) {
+      console.error("Error details:", error);
+      let errorMessage = "추억 등록에 실패했습니다: ";
+
       if (error.response) {
-        alert(`추억 등록에 실패했습니다: ${error.response.data.message}`);
+        console.error("Server error response:", error.response.data);
+        console.error("Server error status:", error.response.status);
+        
+        if (error.response.data.errors) {
+          // Handle validation errors
+          const validationErrors = error.response.data.errors;
+          errorMessage += Object.keys(validationErrors)
+            .map(key => `${key}: ${validationErrors[key].join(', ')}`)
+            .join('; ');
+        } else if (error.response.data.message) {
+          errorMessage += error.response.data.message;
+        } else {
+          errorMessage += '서버에서 오류가 발생했습니다.';
+        }
+      } else if (error.request) {
+        console.error("No response received:", error.request);
+        errorMessage += "서버로부터 응답을 받지 못했습니다.";
       } else {
-        alert("추억 등록 중 오류가 발생했습니다.");
+        console.error("Error setting up request:", error.message);
+        errorMessage += "요청 설정 중 오류가 발생했습니다.";
       }
+
+      alert(errorMessage);
     }
   };
 
