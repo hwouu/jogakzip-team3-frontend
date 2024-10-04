@@ -38,6 +38,10 @@ const GroupDetail = () => {
           password: '', // 초기 비밀번호는 빈 값
         });
 
+        if (!groupResponse.data.groupInfo.isPublic) {
+          navigate(`/groups/${groupId}/private-access`);
+        }
+
         /*
         // 추억 목록 가져오기
         const memoryResponse = await axios.get(`http://localhost:5000/api/groups/${groupId}/posts`);
@@ -52,7 +56,7 @@ const GroupDetail = () => {
       }
     };
     fetchGroupData();
-  }, [groupId]);
+  }, [groupId, navigate]);
 
   // 공감 보내기 함수
   const likeGroup = async () => {
