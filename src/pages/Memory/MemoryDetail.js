@@ -24,6 +24,11 @@ function MemoryDetail() {
     moment: "",
   });
   const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState({
+    nickname: "",
+    content: "",
+    commentPassword: "",
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const commentsPerPage = 3;
 
@@ -77,7 +82,6 @@ function MemoryDetail() {
       await axios.put(`/api/posts/${memoryId}`, editData);
       alert("게시글이 성공적으로 수정되었습니다.");
       setShowEditModal(false);
-      // 수정된 데이터로 상태 업데이트
       setMemoryData({ ...memoryData, ...editData });
     } catch (error) {
       alert("게시글 수정에 실패했습니다.");
@@ -108,6 +112,24 @@ function MemoryDetail() {
     } catch (error) {
       console.error("Error verifying password:", error);
       setErrorMessage("비밀번호 확인에 실패했습니다.");
+    }
+  };
+
+  // 댓글 등록 함수
+  const handleCommentSubmit = async () => {
+    try {
+      await axios.post(`/api/posts/${memoryId}/comments`, newComment);
+      alert("댓글이 성공적으로 등록되었습니다.");
+      setNewComment({
+        nickname: "",
+        content: "",
+        commentPassword: "",
+      });
+      const commentsResponse = await axios.get(`/api/posts/${memoryId}/comments`);
+      setComments(commentsResponse.data);
+      setShowCommentModal(false);
+    } catch (error) {
+      alert("댓글 등록에 실패했습니다.");
     }
   };
 
@@ -190,7 +212,7 @@ function MemoryDetail() {
           <span className="divider">·</span>
           <span className="like-count">🌸 {likeCount}</span>
           <span className="divider">·</span>
-          <span className="comment-count">💬 {memoryData.commentCount}</span>
+          <span className="comment-count">💬 {comments.length}</span>
         </div>
       </div>
 
@@ -291,12 +313,24 @@ function MemoryDetail() {
 
       <Modal showModal={showCommentModal} handleClose={handleCommentModalClose}>
         <h2>댓글 등록하기</h2>
-        <label>댓글 작성</label>
-        <textarea
-          placeholder="댓글을 입력해 주세요"
-          className="comment-input"
+        <label>닉네임</label>
+        <input
+          type="text"
+          value={newComment.nickname}
+          onChange={(e) => setNewComment({ ...newComment, nickname: e.target.value })}
         />
-        <button className="modal-submit-btn">등록</button>
+        <label>댓글 내용</label>
+        <textarea
+          value={newComment.content}
+          onChange={(e) => setNewComment({ ...newComment, content: e.target.value })}
+        />
+        <label>비밀번호</label>
+        <input
+          type="password"
+          value={newComment.commentPassword}
+          onChange={(e) => setNewComment({ ...newComment, commentPassword: e.target.value })}
+        />
+        <button onClick={handleCommentSubmit}>등록</button>
       </Modal>
     </div>
   );
