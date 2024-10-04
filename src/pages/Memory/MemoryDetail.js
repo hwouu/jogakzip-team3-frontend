@@ -1,95 +1,114 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import Modal from "../../components/Modal";
 import "./MemoryDetail.css";
-import Modal from "../../components/Modal"; // 모달 컴포넌트 임포트
 
 function MemoryDetail() {
   const { groupId, memoryId } = useParams();
+  const navigate = useNavigate();
+
   const [memoryData, setMemoryData] = useState(null);
   const [likeCount, setLikeCount] = useState(0);
-  const [showCommentModal, setShowCommentModal] = useState(false); // 댓글 모달 상태
-  const [comments, setComments] = useState([]); // 댓글 상태
-  const [currentPage, setCurrentPage] = useState(1); // 현재 페이지
-  const commentsPerPage = 3; // 한 페이지당 댓글 수
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showCommentModal, setShowCommentModal] = useState(false);
+  const [password, setPassword] = useState("");
+  const [isPasswordRequired, setIsPasswordRequired] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [editData, setEditData] = useState({
+    title: "",
+    content: "",
+    tags: "",
+    location: "",
+    moment: "",
+  });
+  const [comments, setComments] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const commentsPerPage = 3;
 
-  // 더미 데이터를 사용하여 UI 구현
   useEffect(() => {
-    const dummyMemoryData = {
-      id: memoryId,
-      groupId: groupId,
-      nickname: "달봉이아들",
-      isPublic: true,
-      title: "인천 앞바다에서 무려 60cm 월척을 낚다!",
-      tags: ["#인천", "#낚시"],
-      place: "인천 앞바다",
-      date: "24.01.19",
-      likeCount: 120,
-      commentCount: 8,
-      imageUrl: "/incheon.png",
-      content: 
-      `인천 앞바다에서 월척을 낚았습니다!
-      가족들과 기억에 오래도록 남을 멋진 하루였어요
-      인천 앞바다에서 월척을 낚았습니다!
-      
-      인천 앞바다에서 월척을 낚았습니다!
-      가족들과 기억에 오래도록 남을 멋진 하루였어요
-      인천 앞바다에서 월척을 낚았습니다!`,
+    const fetchMemoryData = async () => {
+      try {
+        const response = await axios.get(`/api/posts/${memoryId}`);
+        const memory = response.data;
+        setMemoryData(memory);
+        setLikeCount(memory.likeCount);
+
+        if (!memory.isPublic) {
+          setIsPasswordRequired(true);
+        }
+
+        setEditData({
+          title: memory.title,
+          content: memory.content,
+          tags: memory.tags.join(", "),
+          location: memory.location,
+          moment: memory.moment,
+        });
+
+        // 댓글 데이터 가져오기
+        const commentsResponse = await axios.get(`/api/posts/${memoryId}/comments`);
+        setComments(commentsResponse.data);
+      } catch (error) {
+        console.error("Error fetching memory data:", error);
+      }
     };
 
-    const dummyComments = [
-      {
-        id: 1,
-        nickname: "다람이네가족",
-        date: "24.01.18 21:50",
-        content: "우와 60cm이라니..!! 저도 가족들과 가봐야겠어요~",
-      },
-      {
-        id: 2,
-        nickname: "핑구",
-        date: "24.01.18 21:50",
-        content: "우와 60cm이라니..!! 저도 가족들과 가봐야겠어요~",
-      },
-      {
-        id: 3,
-        nickname: "멸치소",
-        date: "24.01.18 21:50",
-        content: "우와 60cm이라니..!! 저도 가족들과 가봐야겠어요~",
-      },
-      {
-        id: 4,
-        nickname: "다람쥐",
-        date: "24.01.18 21:50",
-        content: "우와 60cm이라니..!! 저도 가족들과 가봐야겠어요~",
-      },
-      {
-        id: 5,
-        nickname: "짱구네",
-        date: "24.01.18 21:50",
-        content: "우와 60cm이라니..!! 저도 가족들과 가봐야겠어요~",
-      },
-      {
-        id: 6,
-        nickname: "구설수",
-        date: "24.01.18 21:50",
-        content: "우와 60cm이라니..!! 저도 가족들과 가봐야겠어요~",
-      },
-    ];
+    fetchMemoryData();
+  }, [memoryId]);
 
-    setMemoryData(dummyMemoryData);
-    setLikeCount(dummyMemoryData.likeCount);
-    setComments(dummyComments);
-  }, [groupId, memoryId]);
-
-  const handleLike = () => {
-    setLikeCount(likeCount + 1);
+  const handleLike = async () => {
+    try {
+      await axios.post(`/api/posts/${memoryId}/like`);
+      setLikeCount(likeCount + 1);
+    } catch (error) {
+      console.error("Error sending like:", error);
+    }
   };
 
-  const handleCommentModalOpen = () => {
-    setShowCommentModal(true); // 댓글 모달 열기
+  const handleEditClick = () => setShowEditModal(true);
+  const handleDeleteClick = () => setShowDeleteModal(true);
+  const handleCommentModalOpen = () => setShowCommentModal(true);
+  const handleCommentModalClose = () => setShowCommentModal(false);
+
+  const handleEditSubmit = async () => {
+    try {
+      await axios.put(`/api/posts/${memoryId}`, editData);
+      alert("게시글이 성공적으로 수정되었습니다.");
+      setShowEditModal(false);
+      // 수정된 데이터로 상태 업데이트
+      setMemoryData({ ...memoryData, ...editData });
+    } catch (error) {
+      alert("게시글 수정에 실패했습니다.");
+    }
   };
 
-  const handleCommentModalClose = () => {
-    setShowCommentModal(false); // 댓글 모달 닫기
+  const handleDeleteSubmit = async () => {
+    try {
+      await axios.delete(`/api/posts/${memoryId}`, { data: { postPassword: password } });
+      alert("게시글이 성공적으로 삭제되었습니다.");
+      navigate(`/groups/${groupId}`);
+    } catch (error) {
+      alert("게시글 삭제에 실패했습니다.");
+    }
+  };
+
+  const handlePasswordSubmit = async () => {
+    try {
+      const response = await axios.post(`/api/posts/${memoryId}/verify-password`, {
+        postPassword: password,
+      });
+
+      if (response.data.verified) {
+        setIsPasswordRequired(false);
+      } else {
+        setErrorMessage("비밀번호가 일치하지 않습니다.");
+      }
+    } catch (error) {
+      console.error("Error verifying password:", error);
+      setErrorMessage("비밀번호 확인에 실패했습니다.");
+    }
   };
 
   // 댓글 페이지네이션
@@ -113,9 +132,25 @@ function MemoryDetail() {
     return <div>Loading...</div>;
   }
 
+  if (isPasswordRequired) {
+    return (
+      <div className="password-check-page">
+        <h2>비공개 추억</h2>
+        <p>비공개 추억에 접근하기 위해 비밀번호를 입력해 주세요.</p>
+        <input
+          type="password"
+          placeholder="비밀번호를 입력해 주세요"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
+        <button onClick={handlePasswordSubmit}>확인</button>
+      </div>
+    );
+  }
+
   return (
     <div className="memory-detail-page">
-      {/* 기본 정보 헤더 */}
       <div className="memory-detail-header">
         <div className="header-left">
           <span className="username">{memoryData.nickname}</span>
@@ -126,8 +161,12 @@ function MemoryDetail() {
         </div>
 
         <div className="header-right">
-          <button className="edit-button">추억 수정하기</button>
-          <button className="delete-button">추억 삭제하기</button>
+          <button className="edit-button" onClick={handleEditClick}>
+            추억 수정하기
+          </button>
+          <button className="delete-button" onClick={handleDeleteClick}>
+            추억 삭제하기
+          </button>
         </div>
 
         <h1 className="memory-title">{memoryData.title}</h1>
@@ -138,18 +177,16 @@ function MemoryDetail() {
           ))}
         </div>
 
-        {/* 공감 버튼을 오른쪽 정렬 */}
         <div className="like-button-container">
           <button className="like-button" onClick={handleLike}>
             🌸 공감 보내기
           </button>
         </div>
 
-        {/* 장소/날짜/공감수/댓글수 */}
         <div className="memory-info">
-          <span className="place">{memoryData.place}</span>
+          <span className="place">{memoryData.location}</span>
           <span className="divider">·</span>
-          <span className="date">{memoryData.date}</span>
+          <span className="date">{memoryData.moment}</span>
           <span className="divider">·</span>
           <span className="like-count">🌸 {likeCount}</span>
           <span className="divider">·</span>
@@ -157,11 +194,8 @@ function MemoryDetail() {
         </div>
       </div>
 
-      {/* 본문 영역 */}
       <div className="memory-content">
         <img src={memoryData.imageUrl} alt="Memory" className="memory-image" />
-
-        {/* 본문 내용을 줄바꿈 기준으로 나누어 표시 */}
         {memoryData.content.split("\n").map((line, index) => (
           <p key={index} className="memory-text">
             {line}
@@ -169,14 +203,12 @@ function MemoryDetail() {
         ))}
       </div>
 
-      {/* 댓글 등록 버튼 */}
       <div className="comment-button-container">
         <button className="comment-button" onClick={handleCommentModalOpen}>
           댓글 등록하기
         </button>
       </div>
 
-      {/* 댓글 목록 */}
       <div className="comment-section">
         <h3>댓글 {comments.length}</h3>
         <ul className="comment-list">
@@ -195,7 +227,6 @@ function MemoryDetail() {
           ))}
         </ul>
 
-        {/* 페이지네이션 */}
         <div className="pagination">
           <button className="prev-button" onClick={handlePreviousPage} disabled={currentPage === 1}>
             <img src="/arrow-left.svg" alt="Previous" />
@@ -219,7 +250,45 @@ function MemoryDetail() {
         </div>
       </div>
 
-      {/* 댓글 등록 모달 */}
+      <Modal showModal={showEditModal} handleClose={() => setShowEditModal(false)}>
+        <h2>게시글 수정</h2>
+        <label>제목</label>
+        <input
+          type="text"
+          value={editData.title}
+          onChange={(e) => setEditData({ ...editData, title: e.target.value })}
+        />
+        <label>본문</label>
+        <textarea
+          value={editData.content}
+          onChange={(e) => setEditData({ ...editData, content: e.target.value })}
+        />
+        <label>태그</label>
+        <input
+          type="text"
+          value={editData.tags}
+          onChange={(e) => setEditData({ ...editData, tags: e.target.value })}
+        />
+        <label>장소</label>
+        <input
+          type="text"
+          value={editData.location}
+          onChange={(e) => setEditData({ ...editData, location: e.target.value })}
+        />
+        <button onClick={handleEditSubmit}>수정하기</button>
+      </Modal>
+
+      <Modal showModal={showDeleteModal} handleClose={() => setShowDeleteModal(false)}>
+        <h2>게시글 삭제</h2>
+        <label>게시글 비밀번호</label>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <button onClick={handleDeleteSubmit}>삭제하기</button>
+      </Modal>
+
       <Modal showModal={showCommentModal} handleClose={handleCommentModalClose}>
         <h2>댓글 등록하기</h2>
         <label>댓글 작성</label>
