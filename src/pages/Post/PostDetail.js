@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Modal from "../../components/Modal";
 import Comments from "../../components/Comments";
+import PrivatePostAccess from "./PrivatePostAccess";
 import "./PostDetail.css";
 
 function PostDetail() {
@@ -13,8 +14,8 @@ function PostDetail() {
   const [likeCount, setLikeCount] = useState(0);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [password, setPassword] = useState("");
   const [isPasswordRequired, setIsPasswordRequired] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [editData, setEditData] = useState({
     title: "",
@@ -27,14 +28,14 @@ function PostDetail() {
   useEffect(() => {
     const fetchPostData = async () => {
       try {
+        setIsLoading(true);
         const response = await axios.get(`/api/posts/${postId}`);
         const post = response.data;
         setPostData(post);
         setLikeCount(post.LikeCount);
 
-        if (!post.IsPublic) {
-          setIsPasswordRequired(true);
-        }
+        // 여기서 IsPublic 값을 확인하여 isPasswordRequired 상태를 설정합니다.
+        setIsPasswordRequired(!post.IsPublic);
 
         setEditData({
           title: post.Title,
@@ -45,11 +46,18 @@ function PostDetail() {
         });
       } catch (error) {
         console.error("Error fetching post data:", error);
+        setErrorMessage("게시물을 불러오는 데 실패했습니다.");
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchPostData();
   }, [postId]);
+
+  const handlePasswordSuccess = () => {
+    setIsPasswordRequired(false);
+  };
 
   const handleLike = async () => {
     try {
@@ -76,7 +84,7 @@ function PostDetail() {
 
   const handleDeleteSubmit = async () => {
     try {
-      await axios.delete(`/api/posts/${postId}`, { data: { PPassword: password } });
+      await axios.delete(`/api/posts/${postId}`);
       alert("게시글이 성공적으로 삭제되었습니다.");
       navigate(`/groups/${groupId}`);
     } catch (error) {
@@ -84,42 +92,20 @@ function PostDetail() {
     }
   };
 
-  const handlePasswordSubmit = async () => {
-    try {
-      const response = await axios.post(`/api/posts/${postId}/verify-password`, {
-        password: password,
-      });
-
-      if (response.data.access) {
-        setIsPasswordRequired(false);
-      } else {
-        setErrorMessage("비밀번호가 일치하지 않습니다.");
-      }
-    } catch (error) {
-      console.error("Error verifying password:", error);
-      setErrorMessage("비밀번호 확인에 실패했습니다.");
-    }
-  };
-
-  if (!postData) {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
 
+  if (errorMessage) {
+    return <div className="error-message">{errorMessage}</div>;
+  }
+
   if (isPasswordRequired) {
-    return (
-      <div className="password-check-page">
-        <h2>비공개 추억</h2>
-        <p>비공개 추억에 접근하기 위해 비밀번호를 입력해 주세요.</p>
-        <input
-          type="password"
-          placeholder="비밀번호를 입력해 주세요"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        {errorMessage && <p className="error-message">{errorMessage}</p>}
-        <button onClick={handlePasswordSubmit}>확인</button>
-      </div>
-    );
+    return <PrivatePostAccess postId={postId} onSuccess={handlePasswordSuccess} />;
+  }
+
+  if (!postData) {
+    return <div>게시물을 찾을 수 없습니다.</div>;
   }
 
   return (
@@ -206,13 +192,9 @@ function PostDetail() {
 
       <Modal showModal={showDeleteModal} handleClose={() => setShowDeleteModal(false)}>
         <h2>게시글 삭제</h2>
-        <label>게시글 비밀번호</label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <p>정말로 이 게시글을 삭제하시겠습니까?</p>
         <button onClick={handleDeleteSubmit}>삭제하기</button>
+        <button onClick={() => setShowDeleteModal(false)}>취소</button>
       </Modal>
     </div>
   );

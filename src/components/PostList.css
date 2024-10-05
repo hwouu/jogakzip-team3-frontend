@@ -326,6 +326,12 @@
   background-color: #fff;
   display: flex;
   flex-direction: column;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+}
+
+.post-card:hover {
+  transform: scale(1.02);
 }
 
 .post-img {

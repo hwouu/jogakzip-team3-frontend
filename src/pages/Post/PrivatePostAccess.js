@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import "./PrivatePostAccess.css";
 
-const PrivatePostAccess = ({ groupId, postId, onSuccess }) => {
+const PrivatePostAccess = ({ postId, onSuccess }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
@@ -11,15 +11,17 @@ const PrivatePostAccess = ({ groupId, postId, onSuccess }) => {
     setError(null);
 
     try {
-      const response = await axios.post(`/api/groups/${groupId}/posts/${postId}/verify-password`, { PPassword: password });
+      const response = await axios.post(`/api/posts/${postId}/verify-password`, { password });
       if (response.status === 200) {
         onSuccess();
-      } else {
-        setError("비밀번호가 올바르지 않습니다.");
       }
     } catch (error) {
       console.error("Error verifying password:", error);
-      setError("비밀번호 확인 중 오류가 발생했습니다.");
+      if (error.response && error.response.status === 401) {
+        setError("비밀번호가 틀렸습니다.");
+      } else {
+        setError("비밀번호 확인 중 오류가 발생했습니다.");
+      }
     }
   };
 

@@ -67,7 +67,7 @@ const CreatePost = () => {
 
       console.log('Server response:', response.data);
 
-      if (response.status === 201) {
+      if (response.status === 200) {
         alert('추억이 성공적으로 등록되었습니다!');
         navigate(`/groups/${groupId}`);
       }

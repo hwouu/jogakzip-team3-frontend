@@ -5,8 +5,16 @@ import './PostList.css';
 const PostList = ({ groupId, posts, loading, hasFetchedPosts }) => {
   const navigate = useNavigate();
 
+  const handlePostClick = (postId) => {
+    navigate(`/groups/${groupId}/post/${postId}`);
+  };
+
   const renderPostCard = (post, index) => (
-    <div key={post.id || index} className="post-card">
+    <div 
+      key={post.id || index} 
+      className="post-card" 
+      onClick={() => handlePostClick(post.id)}
+    >
       <img src={post.imageUrl} alt={post.title} className="post-img" />
       <div className="post-info">
         <div className="post-meta">
