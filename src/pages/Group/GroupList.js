@@ -58,6 +58,28 @@ const GroupList = () => {
     }
   };
 
+  const handleGroupClick = async (group) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/groups/${group.id}/is-public`);
+      const { isPublic } = response.data;
+
+      if (isPublic) {
+        navigate(`/groups/${group.id}`);
+      } else {
+        // 로컬 스토리지에서 해당 그룹에 대한 접근 권한 확인
+        const hasAccess = localStorage.getItem(`group_${group.id}_access`) === 'true';
+        if (hasAccess) {
+          navigate(`/groups/${group.id}`);
+        } else {
+          navigate(`/groups/${group.id}/private-access`);
+        }
+      }
+    } catch (error) {
+      console.error("Error checking group public status:", error);
+      setError("그룹 정보를 불러오는데 실패했습니다.");
+    }
+  };
+
   if (isLoading) {
     return <div>로딩 중...</div>;
   }
@@ -120,7 +142,7 @@ const GroupList = () => {
           <div
             key={group.id}
             className="group-card"
-            onClick={() => navigate(`/groups/${group.id}`)} // 그룹 클릭 시 그룹 상세 페이지로 이동
+            onClick={() => handleGroupClick(group)}
           >
             {/* 공개 그룹일 때만 이미지를 출력 */}
             {group.isPublic && (

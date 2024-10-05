@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import "./PrivateGroupAccess.css"; // CSS 파일 임포트
 
-const PrivateGroupAccess = ({ groupId }) => {
+const PrivateGroupAccess = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { groupId } = useParams();
 
   // 비밀번호 제출 처리
   const handleSubmit = async (e) => {
@@ -16,9 +17,20 @@ const PrivateGroupAccess = ({ groupId }) => {
       return;
     }
     try {
-      const response = await axios.post(`/api/groups/${groupId}/verify-password`, {
-        password: password,
-      });
+      // URLSearchParams를 사용하여 요청 본문을 전송
+      const params = new URLSearchParams();
+      params.append('password', password);
+
+      const response = await axios.post(
+        `http://localhost:5000/api/groups/${groupId}/verify-password`,
+        params,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }
+      );
+
       if (response.status === 200) {
         localStorage.setItem(`group_${groupId}_access`, 'true');
         navigate(`/groups/${groupId}`);
