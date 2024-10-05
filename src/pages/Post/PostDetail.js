@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Modal from "../../components/Modal";
 import Comments from "../../components/Comments";
-import PrivatePostAccess from "./PrivatePostAccess";
 import "./PostDetail.css";
 
 function PostDetail() {
@@ -14,7 +13,6 @@ function PostDetail() {
   const [likeCount, setLikeCount] = useState(0);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [isPasswordRequired, setIsPasswordRequired] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
   const [editData, setEditData] = useState({
@@ -34,9 +32,6 @@ function PostDetail() {
         setPostData(post);
         setLikeCount(post.LikeCount);
 
-        // 여기서 IsPublic 값을 확인하여 isPasswordRequired 상태를 설정합니다.
-        setIsPasswordRequired(!post.IsPublic);
-
         setEditData({
           title: post.Title,
           content: post.Content,
@@ -54,10 +49,6 @@ function PostDetail() {
 
     fetchPostData();
   }, [postId]);
-
-  const handlePasswordSuccess = () => {
-    setIsPasswordRequired(false);
-  };
 
   const handleLike = async () => {
     try {
@@ -100,10 +91,6 @@ function PostDetail() {
     return <div className="error-message">{errorMessage}</div>;
   }
 
-  if (isPasswordRequired) {
-    return <PrivatePostAccess postId={postId} onSuccess={handlePasswordSuccess} />;
-  }
-
   if (!postData) {
     return <div>게시물을 찾을 수 없습니다.</div>;
   }
@@ -114,9 +101,7 @@ function PostDetail() {
         <div className="header-left">
           <span className="username">{postData.Nickname}</span>
           <span className="divider">|</span>
-          <span className="public-status">
-            {postData.IsPublic ? "공개" : "비공개"}
-          </span>
+          <span className="public-status">{postData.IsPublic ? "공개" : "비공개"}</span>
         </div>
 
         <div className="header-right">
@@ -152,12 +137,16 @@ function PostDetail() {
       </div>
 
       <div className="post-content">
-        <img src={postData.Image} alt="Post" className="post-image" />
-        {postData.Content.split("\n").map((line, index) => (
-          <p key={index} className="post-text">
-            {line}
-          </p>
-        ))}
+        {postData.Image && <img src={postData.Image} alt="Post" className="post-image" />}
+        {postData.Content ? (
+          postData.Content.split("\n").map((line, index) => (
+            <p key={index} className="post-text">
+              {line}
+            </p>
+          ))
+        ) : (
+          <p className="post-text">내용이 없습니다.</p>
+        )}
       </div>
 
       <Comments postId={postId} />

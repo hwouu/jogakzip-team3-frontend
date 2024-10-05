@@ -7,6 +7,7 @@ import GroupDetail from "./pages/Group/GroupDetail"; // 그룹 상세 페이지 
 import CreatePost from "./pages/Post/CreatePost"; // CreateMemory 대신 CreatePost 임포트
 import PostDetail from "./pages/Post/PostDetail"; // 추억 상세 페이지 임포트
 import PrivateGroupAccess from "./pages/Group/PrivateGroupAccess"; // 비공개 그룹 비밀번호 페이지 임포트
+import PrivatePostAccess from "./pages/Post/PrivatePostAccess"; // 추가
 
 function PrivateGroupAccessWrapper() {
   const { groupId } = useParams();
@@ -28,6 +29,8 @@ function App() {
         <Route path="/groups/:groupId/create-post" element={<CreatePost />} /> {/* CreateMemory를 CreatePost로 변경 */}
         <Route path="/groups/:groupId/post/:postId" element={<PostDetail />} /> {/* 특정 그룹 내 추억 상세 페이지 */}
         <Route path="/groups/:groupId/private-access" element={<PrivateGroupAccessWrapper />} /> {/* 비공개 그룹 접근 페이지 */}
+        {/* 비공개 게시물 접근 라우트 추가 */}
+        <Route path="/groups/:groupId/post/:postId/private-access" element={<PrivatePostAccess />} />
       </Routes>
     </Router>
   );

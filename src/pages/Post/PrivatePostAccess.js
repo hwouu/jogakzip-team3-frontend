@@ -1,26 +1,47 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
 import "./PrivatePostAccess.css";
 
-const PrivatePostAccess = ({ postId, onSuccess }) => {
+const PrivatePostAccess = ({ postId }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const { groupId } = useParams();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
 
     try {
-      const response = await axios.post(`/api/posts/${postId}/verify-password`, { password });
+      const response = await axios.post(`http://localhost:5000/api/posts/${postId}/verify-password`, 
+        { password },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      
       if (response.status === 200) {
-        onSuccess();
+        localStorage.setItem(`post_${postId}_access`, 'true');
+        navigate(`/groups/${groupId}/post/${postId}`); // 비밀번호 검증 후 바로 게시물로 이동
       }
     } catch (error) {
       console.error("Error verifying password:", error);
-      if (error.response && error.response.status === 401) {
-        setError("비밀번호가 틀렸습니다.");
+      if (error.response) {
+        switch (error.response.status) {
+          case 401:
+            setError("틀린 비밀번호입니다.");
+            break;
+          case 404:
+            setError("게시물을 찾을 수 없습니다.");
+            break;
+          default:
+            setError("비밀번호 확인 중 오류가 발생했습니다.");
+        }
       } else {
-        setError("비밀번호 확인 중 오류가 발생했습니다.");
+        setError("서버와의 통신 중 오류가 발생했습니다.");
       }
     }
   };

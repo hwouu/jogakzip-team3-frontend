@@ -1,12 +1,27 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './PostList.css';
 
 const PostList = ({ groupId, posts, loading, hasFetchedPosts }) => {
   const navigate = useNavigate();
 
-  const handlePostClick = (postId) => {
-    navigate(`/groups/${groupId}/post/${postId}`);
+  const handlePostClick = async (postId) => {
+    try {
+      const response = await axios.get(`http://localhost:5000/api/posts/${postId}/is-public`);
+      const { isPublic } = response.data;
+
+      if (isPublic) {
+        // 공개 게시물은 비밀번호 확인 없이 바로 PostDetail 페이지로 이동
+        navigate(`/groups/${groupId}/post/${postId}`);
+      } else {
+        // 비공개 게시물은 권한에 관계없이 private-access 페이지로 이동
+        navigate(`/groups/${groupId}/post/${postId}/private-access`);
+      }
+    } catch (error) {
+      console.error("Error checking post public status:", error);
+      // 에러 처리 (예: 사용자에게 알림)
+    }
   };
 
   const renderPostCard = (post, index) => (
