@@ -1,7 +1,7 @@
 /* PrivateMemoryAccess.css */
 
 /* 전체 컨테이너 */
-.private-memory-container {
+.private-post-container {
   max-width: 500px;
   padding: 20px;
   text-align: center;
@@ -13,7 +13,7 @@
 }
 
 /* 제목 스타일 */
-.private-memory-container h2 {
+.private-post-container h2 {
   font-size: 24px;
   font-weight: bold;
   color: #333;
@@ -22,7 +22,7 @@
 }
 
 /* 설명 텍스트 */
-.private-memory-container p {
+.private-post-container p {
   font-size: 16px;
   color: #666;
   margin-bottom: 30px;
@@ -30,7 +30,7 @@
 }
 
 /* 비밀번호 입력 필드 */
-.private-memory-container input[type="password"] {
+.private-post-container input[type="password"] {
   width: 300px;
   padding: 15px;
   font-size: 16px;
@@ -40,7 +40,7 @@
 }
 
 /* 제출 버튼 스타일 */
-.private-memory-container button {
+.private-post-container button {
   width: 300px;
   padding: 15px;
   font-size: 18px;
@@ -51,12 +51,12 @@
   cursor: pointer;
 }
 
-.private-memory-container button:hover {
+.private-post-container button:hover {
   background-color: #555;
 }
 
 /* 오류 메시지 스타일 */
-.private-memory-container .error-message {
+.private-post-container .error-message {
   font-size: 14px;
   color: red;
   margin-top: 10px;

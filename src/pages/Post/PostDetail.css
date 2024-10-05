@@ -1,9 +1,9 @@
-.memory-detail-page {
+.post-detail-page {
   max-width: 1560px;
   margin: 0 auto;
 }
 
-.memory-detail-header {
+.post-detail-header {
   padding: 20px;
   border-bottom: 1px solid #ddd;
   display: flex;
@@ -51,7 +51,7 @@
   color: #333;
 }
 
-.memory-title {
+.post-title {
   font-size: 24px;
   font-weight: bold;
   margin: 10px 0;
@@ -86,19 +86,19 @@
   background-color: #f0f0f0;
 }
 
-.memory-info {
+.post-info {
   color: #666;
   font-size: 14px;
 }
 
 /* 본문 영역 */
-.memory-content {
+.post-content {
   max-width: 780px;
   margin: 20px auto;
   text-align: left;
 }
 
-.memory-image {
+.post-image {
   width: 100%;
   max-width: 100%;
   height: 780px;
@@ -108,7 +108,7 @@
   margin-bottom: 60px;
 }
 
-.memory-text {
+.post-text {
   margin: 10px 0;
   font-size: 20px;
   color: #333;

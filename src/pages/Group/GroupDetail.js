@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from '../../api';
 import { findGroupBadges, checkAndUpdateBadges } from '../../services/badgeService';
-import MemoryList from '../../components/MemoryList';
+import PostList from '../../components/PostList';
 import "./GroupDetail.css";
 
 const GroupDetail = () => {
@@ -10,12 +10,12 @@ const GroupDetail = () => {
   const { groupId } = useParams();
 
   const [groupData, setGroupData] = useState(null);
-  const [memories, setMemories] = useState([]);  // 초기값을 빈 배열로 설정
+  const [posts, setPosts] = useState([]);  // 'memories'를 'posts'로 변경
   const [isPublicSelected, setIsPublicSelected] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [hasFetchedMemories, setHasFetchedMemories] = useState(false); //
+  const [hasFetchedPosts, setHasFetchedPosts] = useState(false);  // 'hasFetchedMemories'를 'hasFetchedPosts'로 변경
   const [editGroupData, setEditGroupData] = useState({
     name: '',
     imageUrl: '',
@@ -31,7 +31,6 @@ const GroupDetail = () => {
 
   const [badges, setBadges] = useState([]);
   const [newBadges, setNewBadges] = useState([]);
-  const badgesRef = useRef(null);
 
   const handleModalToggle = (modalType) => {
     setModalState((prevState) => ({
@@ -57,16 +56,16 @@ const GroupDetail = () => {
         navigate(`/groups/${groupId}/private-access`);
       } else {
         // 추억 목록 가져오기
-        const memoryResponse = await api.get(`/groups/${groupId}/posts`);
-        console.log("Memory response:", memoryResponse.data);
-        if (Array.isArray(memoryResponse.data?.data)) {
-          setMemories(memoryResponse.data.data);
+        const postResponse = await api.get(`/groups/${groupId}/posts`);
+        console.log("Post response:", postResponse.data);
+        if (Array.isArray(postResponse.data?.data)) {
+          setPosts(postResponse.data.data);
         } else {
-          console.error("Memories data is not an array:", memoryResponse.data);
-          setMemories([]);
+          console.error("Posts data is not an array:", postResponse.data);
+          setPosts([]);
         }
 
-        // 배지 확인 및 업데이트
+        // 배지 확 및 업���이트
         const newAcquiredBadges = await checkAndUpdateBadges(groupId);
         if (newAcquiredBadges.length > 0) {
           setNewBadges(newAcquiredBadges);
@@ -76,7 +75,7 @@ const GroupDetail = () => {
         const badgesData = await findGroupBadges(groupId);
         setBadges(badgesData);
       }
-      setHasFetchedMemories(true);
+      setHasFetchedPosts(true);  // 'setHasFetchedMemories'를 'setHasFetchedPosts'로 변경
     } catch (err) {
       console.error("Error fetching data:", err);
       setError("데이터를 불러오는 중 문제가 발생했습니다.");
@@ -105,7 +104,7 @@ const GroupDetail = () => {
     if (newBadges.length > 0) {
       // 새로운 배지 획득 알림 표시
       alert(`새로운 배지를 획득했습니다: ${newBadges.map(badge => badge.name).join(', ')}`);
-      setNewBadges([]); // 알림 후 초기화
+      setNewBadges([]); // 알림 후 기화
     }
   }, [newBadges]);
 
@@ -156,7 +155,7 @@ const GroupDetail = () => {
   };
 
   // 추억 올리기 버튼 클릭 시 페이지 이동
-  const handleCreateMemoryClick = () => {
+  const handleCreatePostClick = () => {
     navigate(`/groups/${groupId}/create-memory`);
   };
 
@@ -184,7 +183,7 @@ const GroupDetail = () => {
   }
 
   if (!groupData) {
-    return <div>그룹 정보를 불러오지 못했습니다.</div>;
+    return <div>그룹 정보를 불오지 못했습니다.</div>;
   }
 
   return (
@@ -233,15 +232,15 @@ const GroupDetail = () => {
       </div>
 
       {/* 추억 목록 섹션 */}
-      <div className="memory-section">
-        <div className="memory-header">
+      <div className="post-section">
+        <div className="post-header">
           <h3>추억 목록</h3>
-          <button className="memory-upload-btn" onClick={handleCreateMemoryClick}>
+          <button className="post-upload-btn" onClick={handleCreatePostClick}>
             추억 올리기
           </button>
         </div>
 
-        <div className="memory-controls">
+        <div className="post-controls">
           <div className="privacy-toggle">
             <button className={`public-btn ${isPublicSelected ? "active" : ""}`} onClick={() => setIsPublicSelected(true)}>
               공개
@@ -250,29 +249,29 @@ const GroupDetail = () => {
               비공개
             </button>
           </div>
-          <div className="memory-search-container">
-            <img src="/search.svg" alt="search-icon" className="memory-search-icon" />
+          <div className="post-search-container">
+            <img src="/search.svg" alt="search-icon" className="post-search-icon" />
             <input
               type="text"
               placeholder="태그 혹은 제목을 입력해 주세요"
-              className="memory-search-input"
+              className="post-search-input"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <select className="memory-sort-select">
+          <select className="post-sort-select">
             <option value="likes">공감순</option>
             <option value="recent">최신순</option>
           </select>
         </div>
 
-        <MemoryList
+        <PostList
           groupId={groupId}
-          memories={memories}
+          posts={posts}
           isPublicSelected={isPublicSelected}
           searchTerm={searchTerm}
           loading={loading}
-          hasFetchedMemories={hasFetchedMemories}
+          hasFetchedPosts={hasFetchedPosts}
         />
       </div>
 

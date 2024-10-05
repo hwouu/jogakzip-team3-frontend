@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
-import "./PrivateMemoryAccess.css";
+import "./PrivatePostAccess.css";
 
-const PrivateMemoryAccess = ({ groupId, postId, onSuccess }) => {
+const PrivatePostAccess = ({ groupId, postId, onSuccess }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
 
@@ -24,25 +24,25 @@ const PrivateMemoryAccess = ({ groupId, postId, onSuccess }) => {
   };
 
   return (
-    <div className="private-memory-container">
-      <h2 className="private-memory-title">비공개 추억</h2>
-      <p className="private-memory-subtitle">
-        이 추억을 보려면 비밀번호를 입력해주세요.
+    <div className="private-post-container">
+      <h2 className="private-post-title">비공개 게시물</h2>
+      <p className="private-post-subtitle">
+        이 게시물을 보려면 비밀번호를 입력해주세요.
       </p>
-      <form onSubmit={handleSubmit} className="private-memory-form">
-        <label className="private-memory-label" htmlFor="memory-password">
+      <form onSubmit={handleSubmit} className="private-post-form">
+        <label className="private-post-label" htmlFor="post-password">
           비밀번호 입력
         </label>
         <input
-          id="memory-password"
+          id="post-password"
           type="password"
-          placeholder="추억 비밀번호를 입력해 주세요"
+          placeholder="게시물 비밀번호를 입력해 주세요"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="private-memory-input"
+          className="private-post-input"
         />
-        {error && <p className="private-memory-error">{error}</p>}
-        <button type="submit" className="private-memory-submit-btn">
+        {error && <p className="private-post-error">{error}</p>}
+        <button type="submit" className="private-post-submit-btn">
           확인
         </button>
       </form>
@@ -50,4 +50,4 @@ const PrivateMemoryAccess = ({ groupId, postId, onSuccess }) => {
   );
 };
 
-export default PrivateMemoryAccess;
+export default PrivatePostAccess;

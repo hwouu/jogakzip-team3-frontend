@@ -3,13 +3,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Modal from "../../components/Modal";
 import Comments from "../../components/Comments";
-import "./MemoryDetail.css";
+import "./PostDetail.css";
 
-function MemoryDetail() {
-  const { groupId, memoryId } = useParams();
+function PostDetail() {
+  const { groupId, postId } = useParams();
   const navigate = useNavigate();
 
-  const [memoryData, setMemoryData] = useState(null);
+  const [postData, setPostData] = useState(null);
   const [likeCount, setLikeCount] = useState(0);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -25,35 +25,35 @@ function MemoryDetail() {
   });
 
   useEffect(() => {
-    const fetchMemoryData = async () => {
+    const fetchPostData = async () => {
       try {
-        const response = await axios.get(`/api/posts/${memoryId}`);
-        const memory = response.data;
-        setMemoryData(memory);
-        setLikeCount(memory.LikeCount);
+        const response = await axios.get(`/api/posts/${postId}`);
+        const post = response.data;
+        setPostData(post);
+        setLikeCount(post.LikeCount);
 
-        if (!memory.IsPublic) {
+        if (!post.IsPublic) {
           setIsPasswordRequired(true);
         }
 
         setEditData({
-          title: memory.Title,
-          content: memory.Content,
-          tags: memory.postTags ? memory.postTags.map(pt => pt.tag.Name).join(", ") : "",
-          location: memory.Location,
-          moment: memory.MemoryMoment,
+          title: post.Title,
+          content: post.Content,
+          tags: post.postTags ? post.postTags.map(pt => pt.tag.Name).join(", ") : "",
+          location: post.Location,
+          moment: post.PostMoment,
         });
       } catch (error) {
-        console.error("Error fetching memory data:", error);
+        console.error("Error fetching post data:", error);
       }
     };
 
-    fetchMemoryData();
-  }, [memoryId]);
+    fetchPostData();
+  }, [postId]);
 
   const handleLike = async () => {
     try {
-      const response = await axios.post(`/api/posts/${memoryId}/like`);
+      const response = await axios.post(`/api/posts/${postId}/like`);
       setLikeCount(response.data.likes);
     } catch (error) {
       console.error("Error sending like:", error);
@@ -65,10 +65,10 @@ function MemoryDetail() {
 
   const handleEditSubmit = async () => {
     try {
-      await axios.put(`/api/posts/${memoryId}`, editData);
+      await axios.put(`/api/posts/${postId}`, editData);
       alert("게시글이 성공적으로 수정되었습니다.");
       setShowEditModal(false);
-      setMemoryData({ ...memoryData, ...editData });
+      setPostData({ ...postData, ...editData });
     } catch (error) {
       alert("게시글 수정에 실패했습니다.");
     }
@@ -76,7 +76,7 @@ function MemoryDetail() {
 
   const handleDeleteSubmit = async () => {
     try {
-      await axios.delete(`/api/posts/${memoryId}`, { data: { PPassword: password } });
+      await axios.delete(`/api/posts/${postId}`, { data: { PPassword: password } });
       alert("게시글이 성공적으로 삭제되었습니다.");
       navigate(`/groups/${groupId}`);
     } catch (error) {
@@ -86,7 +86,7 @@ function MemoryDetail() {
 
   const handlePasswordSubmit = async () => {
     try {
-      const response = await axios.post(`/api/posts/${memoryId}/verify-password`, {
+      const response = await axios.post(`/api/posts/${postId}/verify-password`, {
         password: password,
       });
 
@@ -101,7 +101,7 @@ function MemoryDetail() {
     }
   };
 
-  if (!memoryData) {
+  if (!postData) {
     return <div>Loading...</div>;
   }
 
@@ -123,13 +123,13 @@ function MemoryDetail() {
   }
 
   return (
-    <div className="memory-detail-page">
-      <div className="memory-detail-header">
+    <div className="post-detail-page">
+      <div className="post-detail-header">
         <div className="header-left">
-          <span className="username">{memoryData.Nickname}</span>
+          <span className="username">{postData.Nickname}</span>
           <span className="divider">|</span>
           <span className="public-status">
-            {memoryData.IsPublic ? "공개" : "비공개"}
+            {postData.IsPublic ? "공개" : "비공개"}
           </span>
         </div>
 
@@ -142,10 +142,10 @@ function MemoryDetail() {
           </button>
         </div>
 
-        <h1 className="memory-title">{memoryData.Title}</h1>
+        <h1 className="post-title">{postData.Title}</h1>
 
         <div className="tags">
-          {memoryData.postTags && memoryData.postTags.map((postTag, index) => (
+          {postData.postTags && postData.postTags.map((postTag, index) => (
             <span key={index}>{postTag.tag.Name}</span>
           ))}
         </div>
@@ -156,25 +156,25 @@ function MemoryDetail() {
           </button>
         </div>
 
-        <div className="memory-info">
-          <span className="place">{memoryData.Location}</span>
+        <div className="post-info">
+          <span className="place">{postData.Location}</span>
           <span className="divider">·</span>
-          <span className="date">{new Date(memoryData.MemoryMoment).toLocaleDateString()}</span>
+          <span className="date">{new Date(postData.PostMoment).toLocaleDateString()}</span>
           <span className="divider">·</span>
           <span className="like-count">🌸 {likeCount}</span>
         </div>
       </div>
 
-      <div className="memory-content">
-        <img src={memoryData.Image} alt="Memory" className="memory-image" />
-        {memoryData.Content.split("\n").map((line, index) => (
-          <p key={index} className="memory-text">
+      <div className="post-content">
+        <img src={postData.Image} alt="Post" className="post-image" />
+        {postData.Content.split("\n").map((line, index) => (
+          <p key={index} className="post-text">
             {line}
           </p>
         ))}
       </div>
 
-      <Comments memoryId={memoryId} />
+      <Comments postId={postId} />
 
       <Modal showModal={showEditModal} handleClose={() => setShowEditModal(false)}>
         <h2>게시글 수정</h2>
@@ -218,4 +218,4 @@ function MemoryDetail() {
   );
 }
 
-export default MemoryDetail;
+export default PostDetail;
