@@ -1,24 +1,32 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "./PrivateGroupAccess.css"; // CSS 파일 임포트
 
-const PrivateGroupAccess = ({ groupId, onSuccess }) => {
+const PrivateGroupAccess = ({ groupId }) => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   // 비밀번호 제출 처리
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!groupId) {
+      setError("그룹 ID가 유효하지 않습니다.");
+      return;
+    }
     try {
       const response = await axios.post(`/api/groups/${groupId}/verify-password`, {
         password: password,
       });
       if (response.status === 200) {
-        onSuccess(); // 비밀번호가 맞으면 성공 콜백 호출
+        localStorage.setItem(`group_${groupId}_access`, 'true');
+        navigate(`/groups/${groupId}`);
       } else {
         setError("비밀번호가 틀렸습니다.");
       }
     } catch (error) {
+      console.error("Error verifying password:", error);
       setError("비밀번호 확인에 실패했습니다.");
     }
   };

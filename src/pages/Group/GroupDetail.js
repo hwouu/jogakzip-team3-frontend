@@ -53,7 +53,10 @@ const GroupDetail = () => {
       });
 
       if (!groupResponse.data.groupInfo.isPublic) {
-        navigate(`/groups/${groupId}/private-access`);
+        if (!localStorage.getItem(`group_${groupId}_access`)) {
+          navigate(`/groups/${groupId}/private-access`);
+          return;
+        }
       } else {
         const postResponse = await api.get(`/groups/${groupId}/posts`, {
           params: {

@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useParams, useNavigate } from "react-router-dom";
 import Header from "./components/Header"; // 헤더 임포트
 import GroupList from "./pages/Group/GroupList"; // 그룹 리스트 페이지 임포트
 import CreateGroup from "./pages/Group/CreateGroup"; // 그룹 생성 페이지 임포트
@@ -7,6 +7,11 @@ import GroupDetail from "./pages/Group/GroupDetail"; // 그룹 상세 페이지 
 import CreatePost from "./pages/Post/CreatePost"; // CreateMemory 대신 CreatePost 임포트
 import PostDetail from "./pages/Post/PostDetail"; // 추억 상세 페이지 임포트
 import PrivateGroupAccess from "./pages/Group/PrivateGroupAccess"; // 비공개 그룹 비밀번호 페이지 임포트
+
+function PrivateGroupAccessWrapper() {
+  const { groupId } = useParams();
+  return <PrivateGroupAccess groupId={groupId} />;
+}
 
 function App() {
   return (
@@ -22,7 +27,7 @@ function App() {
         <Route path="/groups/:groupId" element={<GroupDetail />} /> {/* 그룹 상세 페이지 */}
         <Route path="/groups/:groupId/create-post" element={<CreatePost />} /> {/* CreateMemory를 CreatePost로 변경 */}
         <Route path="/groups/:groupId/post/:postId" element={<PostDetail />} /> {/* 특정 그룹 내 추억 상세 페이지 */}
-        <Route path="/groups/:groupId/private-access" element={<PrivateGroupAccess />} /> {/* 비공개 그룹 접근 페이지 */}
+        <Route path="/groups/:groupId/private-access" element={<PrivateGroupAccessWrapper />} /> {/* 비공개 그룹 접근 페이지 */}
       </Routes>
     </Router>
   );
