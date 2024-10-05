@@ -65,7 +65,7 @@ const GroupDetail = () => {
           setPosts([]);
         }
 
-        // 배지 확 및 업���이트
+        // 배지 확 및 업이트
         const newAcquiredBadges = await checkAndUpdateBadges(groupId);
         if (newAcquiredBadges.length > 0) {
           setNewBadges(newAcquiredBadges);
@@ -154,9 +154,9 @@ const GroupDetail = () => {
     }
   };
 
-  // 추억 올리기 버튼 클릭 시 페이지 이동
+  // 추억 올리기 버튼 클릭 시 페이지 이동 함수 수정
   const handleCreatePostClick = () => {
-    navigate(`/groups/${groupId}/create-memory`);
+    navigate(`/groups/${groupId}/create-post`);  // create-memory 대신 create-post로 변경
   };
 
   const badgeInfo = {
