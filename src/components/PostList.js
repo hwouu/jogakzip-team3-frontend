@@ -2,19 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './PostList.css';
 
-const PostList = ({ groupId, posts, isPublicSelected, searchTerm, loading, hasFetchedPosts }) => {
+const PostList = ({ groupId, posts, loading, hasFetchedPosts }) => {
   const navigate = useNavigate();
-
-  const filteredPosts = posts.filter((post) => {
-    const isVisible = isPublicSelected ? post.IsPublic : !post.IsPublic;
-    const searchMatch =
-      (post.Title && post.Title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (post.tags && post.tags.some((tag) =>
-        tag.toLowerCase().includes(searchTerm.toLowerCase())
-      ));
-
-    return isVisible && searchMatch;
-  });
 
   const renderPostCard = (post, index) => (
     <div key={post.id || index} className="post-card">
@@ -63,8 +52,8 @@ const PostList = ({ groupId, posts, isPublicSelected, searchTerm, loading, hasFe
 
   return (
     <div className="post-list">
-      {filteredPosts.length > 0 ? (
-        filteredPosts.map(renderPostCard)
+      {posts.length > 0 ? (
+        posts.map(renderPostCard)
       ) : (
         <p className="no-results">검색 결과가 없습니다.</p>
       )}

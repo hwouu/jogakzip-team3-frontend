@@ -10,12 +10,12 @@ const GroupDetail = () => {
   const { groupId } = useParams();
 
   const [groupData, setGroupData] = useState(null);
-  const [posts, setPosts] = useState([]);  // 'memories'를 'posts'로 변경
+  const [posts, setPosts] = useState([]);
   const [isPublicSelected, setIsPublicSelected] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [hasFetchedPosts, setHasFetchedPosts] = useState(false);  // 'hasFetchedMemories'를 'hasFetchedPosts'로 변경
+  const [hasFetchedPosts, setHasFetchedPosts] = useState(false);
   const [editGroupData, setEditGroupData] = useState({
     name: '',
     imageUrl: '',
@@ -55,8 +55,15 @@ const GroupDetail = () => {
       if (!groupResponse.data.groupInfo.isPublic) {
         navigate(`/groups/${groupId}/private-access`);
       } else {
-        // 추억 목록 가져오기
-        const postResponse = await api.get(`/groups/${groupId}/posts`);
+        const postResponse = await api.get(`/groups/${groupId}/posts`, {
+          params: {
+            isPublic: isPublicSelected ? true : false,
+            page: 1,
+            pageSize: 10,
+            sortBy: 'latest',
+            keyword: searchTerm
+          }
+        });
         console.log("Post response:", postResponse.data);
         if (Array.isArray(postResponse.data?.data)) {
           setPosts(postResponse.data.data);
@@ -65,34 +72,31 @@ const GroupDetail = () => {
           setPosts([]);
         }
 
-        // 배지 확 및 업이트
         const newAcquiredBadges = await checkAndUpdateBadges(groupId);
         if (newAcquiredBadges.length > 0) {
           setNewBadges(newAcquiredBadges);
         }
 
-        // 배지 목록 가져오기
         const badgesData = await findGroupBadges(groupId);
         setBadges(badgesData);
       }
-      setHasFetchedPosts(true);  // 'setHasFetchedMemories'를 'setHasFetchedPosts'로 변경
+      setHasFetchedPosts(true);
     } catch (err) {
       console.error("Error fetching data:", err);
       setError("데이터를 불러오는 중 문제가 발생했습니다.");
     } finally {
       setLoading(false);
     }
-  }, [groupId, navigate]);
+  }, [groupId, navigate, isPublicSelected, searchTerm]);
 
   useEffect(() => {
     fetchGroupData();
 
-    // 주기적으로 배지 상태 확인 (예: 1분마다)
     const intervalId = setInterval(() => {
       checkAndUpdateBadges(groupId).then((newAcquiredBadges) => {
         if (newAcquiredBadges.length > 0) {
           setNewBadges(newAcquiredBadges);
-          fetchGroupData(); // 새 배지 획득 시 그룹 데이터 새로고침
+          fetchGroupData();
         }
       });
     }, 60000);
@@ -102,19 +106,16 @@ const GroupDetail = () => {
 
   useEffect(() => {
     if (newBadges.length > 0) {
-      // 새로운 배지 획득 알림 표시
       alert(`새로운 배지를 획득했습니다: ${newBadges.map(badge => badge.name).join(', ')}`);
-      setNewBadges([]); // 알림 후 기화
+      setNewBadges([]);
     }
   }, [newBadges]);
 
-  // 공감 보내기 함수
   const likeGroup = async () => {
     try {
       await api.post(`/groups/${groupId}/like`);
       alert("공감을 보냈습니다!");
 
-      // 공감 수 업데이트
       setGroupData((prevData) => ({
         ...prevData,
         likeCount: prevData.likeCount + 1,
@@ -124,39 +125,34 @@ const GroupDetail = () => {
     }
   };
 
-  // 모달 열기/닫기 함수
   const handleEditGroupClick = () => setModalState({ ...modalState, isEditModalOpen: true });
   const handleDeleteGroupClick = () => setModalState({ ...modalState, isDeleteModalOpen: true });
 
-  // 그룹 수정 제출 함수
   const handleEditGroupSubmit = async (e) => {
     e.preventDefault();
     try {
       await api.put(`/groups/${groupId}`, editGroupData);
       alert("그룹 정보가 성공적으로 수정되었습니다.");
-      setModalState({ ...modalState, isEditModalOpen: false }); // 모달 닫기
-      // 그룹 정보를 다시 로드하거나 상태 업데이트
+      setModalState({ ...modalState, isEditModalOpen: false });
     } catch (error) {
       alert("그룹 정보 수정에 실패했습니다.");
     }
   };
 
-  // 그룹 삭제 제출 함수
   const handleDeleteGroupSubmit = async () => {
     try {
       await api.delete(`/groups/${groupId}`, {
-        data: { password: editGroupData.password }, // 비밀번호를 사용해 삭제 요청
+        data: { password: editGroupData.password },
       });
       alert("그룹이 성공적으로 삭제되었습니다.");
-      navigate("/groups"); // 삭제 후 그룹 목록으로 이동
+      navigate("/groups");
     } catch (error) {
       alert("그룹 삭제에 실패했습니다.");
     }
   };
 
-  // 추억 올리기 버튼 클릭 시 페이지 이동 함수 수정
   const handleCreatePostClick = () => {
-    navigate(`/groups/${groupId}/create-post`);  // create-memory 대신 create-post로 변경
+    navigate(`/groups/${groupId}/create-post`);
   };
 
   const badgeInfo = {
@@ -188,7 +184,6 @@ const GroupDetail = () => {
 
   return (
     <div className="group-detail-container">
-      {/* 그룹 상세 정보 */}
       <div className="group-header">
         <img src={groupData.imageUrl || "/default-group.png"} alt={groupData.name} className="group-img" />
         <div className="group-info">
@@ -231,7 +226,6 @@ const GroupDetail = () => {
         </div>
       </div>
 
-      {/* 추억 목록 섹션 */}
       <div className="post-section">
         <div className="post-header">
           <h3>추억 목록</h3>
@@ -275,7 +269,6 @@ const GroupDetail = () => {
         />
       </div>
 
-      {/* 그룹 수정 모달 */}
       {modalState.isEditModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -323,7 +316,6 @@ const GroupDetail = () => {
         </div>
       )}
 
-      {/* 그룹 삭제 모달 */}
       {modalState.isDeleteModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
