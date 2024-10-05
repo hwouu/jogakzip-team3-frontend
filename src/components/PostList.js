@@ -29,10 +29,6 @@ const PostList = ({ groupId, posts, loading, hasFetchedPosts }) => {
     </div>
   );
 
-  const handleCreatePostClick = () => {
-    navigate(`/groups/${groupId}/create-post`);
-  };
-
   if (loading) {
     return <div>로딩 중...</div>;
   }
@@ -43,9 +39,7 @@ const PostList = ({ groupId, posts, loading, hasFetchedPosts }) => {
         <img src="/empty-posts.png" alt="No posts" className="empty-icon" />
         <p className="no-results">게시된 추억이 없습니다.</p>
         <p className="upload-first-post">첫 번째 추억을 올려보세요!</p>
-        <button className="post-upload-btn" onClick={handleCreatePostClick}>
-          추억 올리기
-        </button>
+        
       </div>
     );
   }
