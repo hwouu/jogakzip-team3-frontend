@@ -1,0 +1,417 @@
+/* 추억 섹션 */
+.memory-section {
+  margin-top: 60px;
+}
+
+.memory-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin-top: 140px;
+  margin-bottom: 70px;
+}
+
+.memory-header h3 {
+  font-size: 24px;
+  margin: 0 auto;
+}
+
+.memory-upload-btn {
+  background-color: #282828;
+  color: white;
+  font-size: 16px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 200px;
+  height: 45px;
+  position: absolute;
+  right: 0;
+}
+
+.memory-upload-btn:hover {
+  background-color: #444;
+}
+
+/* 필터, 검색 및 정렬 옵션 */
+.memory-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.privacy-toggle {
+  display: flex;
+  gap: 10px;
+}
+
+.public-btn,
+.private-btn {
+  background-color: #fafafa;
+  color: #282828;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 10px 15px;
+  border: 1px solid #b8b8b8;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.public-btn.active,
+.private-btn.active {
+  background-color: #282828;
+  color: #fafafa;
+}
+
+/* 검색창 */
+.memory-search-container {
+  position: relative;
+  width: 100%;
+  max-width: 1186px;
+  height: 45px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.memory-search-icon {
+  position: absolute;
+  overflow: hidden;
+  left: 15px;
+  width: 30px;
+  height: 20px;
+}
+
+.memory-search-input {
+  width: 100%;
+  padding-left: 50px;
+  font-size: 14px;
+  border-radius: 20px;
+  background-color: #f4f4f4;
+  border: none;
+}
+
+/* 정렬 옵션 */
+.memory-sort-select {
+  width: 160px;
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 5px;
+}
+
+/* 추억 카드 레이아웃 */
+.memory-list {
+  margin-top: 60px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.memory-card {
+  width: 375px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 15px;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.memory-img {
+  width: 100%;
+  height: 335px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* 메모리 정보 */
+.memory-info {
+  padding: 10px 0;
+}
+
+.memory-meta {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.group-name {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.public-status {
+  font-size: 14px;
+  color: #666;
+}
+
+.memory-card-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.memory-tags {
+  color: #999;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.memory-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: #666;
+}
+
+.memory-location {
+  display: flex;
+  gap: 20px;
+}
+
+.memory-stats {
+  display: flex;
+  gap: 20px;
+}
+
+/* 빈 추억 목록 상태 */
+.empty-memory {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 100px;
+  text-align: center;
+}
+
+.empty-icon {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 20px;
+}
+
+.no-results {
+  font-size: 20px;
+  color: #999;
+}
+
+.upload-first-memory {
+  font-size: 16px;
+  color: #666
+}
+
+/* 'memory'를 'post'로 변경 */
+.post-section {
+  margin-top: 60px;
+}
+
+.post-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin-top: 140px;
+  margin-bottom: 70px;
+}
+
+.post-header h3 {
+  font-size: 24px;
+  margin: 0 auto;
+}
+
+.post-upload-btn {
+  background-color: #282828;
+  color: white;
+  font-size: 16px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  width: 200px;
+  height: 45px;
+  position: absolute;
+  right: 0;
+}
+
+.post-upload-btn:hover {
+  background-color: #444;
+}
+
+/* 필터, 검색 및 정렬 옵션 */
+.post-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.privacy-toggle {
+  display: flex;
+  gap: 10px;
+}
+
+.public-btn,
+.private-btn {
+  background-color: #fafafa;
+  color: #282828;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 10px 15px;
+  border: 1px solid #b8b8b8;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.public-btn.active,
+.private-btn.active {
+  background-color: #282828;
+  color: #fafafa;
+}
+
+/* 검색창 */
+.post-search-container {
+  position: relative;
+  width: 100%;
+  max-width: 1186px;
+  height: 45px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.post-search-icon {
+  position: absolute;
+  overflow: hidden;
+  left: 15px;
+  width: 30px;
+  height: 20px;
+}
+
+.post-search-input {
+  width: 100%;
+  padding-left: 50px;
+  font-size: 14px;
+  border-radius: 20px;
+  background-color: #f4f4f4;
+  border: none;
+}
+
+/* 정렬 옵션 */
+.post-sort-select {
+  width: 160px;
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 5px;
+}
+
+/* 추억 카드 레이아웃 */
+.post-list {
+  margin-top: 60px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.post-card {
+  width: 375px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 15px;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.post-img {
+  width: 100%;
+  height: 335px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+/* 메모리 정보 */
+.post-info {
+  padding: 10px 0;
+}
+
+.post-meta {
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.group-name {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.public-status {
+  font-size: 14px;
+  color: #666;
+}
+
+.post-card-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.post-tags {
+  color: #999;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+.post-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: #666;
+}
+
+.post-location {
+  display: flex;
+  gap: 20px;
+}
+
+.post-stats {
+  display: flex;
+  gap: 20px;
+}
+
+/* 빈 추억 목록 상태 */
+.empty-post {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 100px;
+  text-align: center;
+}
+
+.empty-icon {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 20px;
+}
+
+.no-results {
+  font-size: 20px;
+  color: #999;
+}
+
+.upload-first-memory {
+  font-size: 16px;
+  color: #666
+}
