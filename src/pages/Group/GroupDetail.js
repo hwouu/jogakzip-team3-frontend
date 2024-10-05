@@ -1,6 +1,8 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import api from '../../api';
+import { findGroupBadges, checkAndUpdateBadges } from '../../services/badgeService';
+import MemoryList from '../../components/MemoryList';
 import "./GroupDetail.css";
 
 const GroupDetail = () => {
@@ -13,8 +15,6 @@ const GroupDetail = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [hasFetchedMemories, setHasFetchedMemories] = useState(false); //
   const [editGroupData, setEditGroupData] = useState({
     name: '',
@@ -24,9 +24,26 @@ const GroupDetail = () => {
     password: '',
   });
 
+  const [modalState, setModalState] = useState({
+    isEditModalOpen: false,
+    isDeleteModalOpen: false,
+  });
+
+  const [badges, setBadges] = useState([]);
+  const [newBadges, setNewBadges] = useState([]);
+  const badgesRef = useRef(null);
+
+  const handleModalToggle = (modalType) => {
+    setModalState((prevState) => ({
+      ...prevState,
+      [modalType]: !prevState[modalType],
+    }));
+  };
+
   const fetchGroupData = useCallback(async () => {
     try {
-      const groupResponse = await axios.get(`http://localhost:5000/api/groups/${groupId}`);
+      const groupResponse = await api.get(`/groups/${groupId}`);
+      console.log("Group response:", groupResponse.data);
       setGroupData(groupResponse.data.groupInfo);
       setEditGroupData({
         name: groupResponse.data.groupInfo.name,
@@ -40,14 +57,24 @@ const GroupDetail = () => {
         navigate(`/groups/${groupId}/private-access`);
       } else {
         // 추억 목록 가져오기
-        const memoryResponse = await axios.get(`http://localhost:5000/api/groups/${groupId}/posts`);
+        const memoryResponse = await api.get(`/groups/${groupId}/posts`);
         console.log("Memory response:", memoryResponse.data);
-        if (Array.isArray(memoryResponse.data.data)) {
+        if (Array.isArray(memoryResponse.data?.data)) {
           setMemories(memoryResponse.data.data);
         } else {
           console.error("Memories data is not an array:", memoryResponse.data);
           setMemories([]);
         }
+
+        // 배지 확인 및 업데이트
+        const newAcquiredBadges = await checkAndUpdateBadges(groupId);
+        if (newAcquiredBadges.length > 0) {
+          setNewBadges(newAcquiredBadges);
+        }
+
+        // 배지 목록 가져오기
+        const badgesData = await findGroupBadges(groupId);
+        setBadges(badgesData);
       }
       setHasFetchedMemories(true);
     } catch (err) {
@@ -60,12 +87,32 @@ const GroupDetail = () => {
 
   useEffect(() => {
     fetchGroupData();
-  }, [fetchGroupData]);
+
+    // 주기적으로 배지 상태 확인 (예: 1분마다)
+    const intervalId = setInterval(() => {
+      checkAndUpdateBadges(groupId).then((newAcquiredBadges) => {
+        if (newAcquiredBadges.length > 0) {
+          setNewBadges(newAcquiredBadges);
+          fetchGroupData(); // 새 배지 획득 시 그룹 데이터 새로고침
+        }
+      });
+    }, 60000);
+
+    return () => clearInterval(intervalId);
+  }, [fetchGroupData, groupId]);
+
+  useEffect(() => {
+    if (newBadges.length > 0) {
+      // 새로운 배지 획득 알림 표시
+      alert(`새로운 배지를 획득했습니다: ${newBadges.map(badge => badge.name).join(', ')}`);
+      setNewBadges([]); // 알림 후 초기화
+    }
+  }, [newBadges]);
 
   // 공감 보내기 함수
   const likeGroup = async () => {
     try {
-      await axios.post(`http://localhost:5000/api/groups/${groupId}/like`);
+      await api.post(`/groups/${groupId}/like`);
       alert("공감을 보냈습니다!");
 
       // 공감 수 업데이트
@@ -79,16 +126,16 @@ const GroupDetail = () => {
   };
 
   // 모달 열기/닫기 함수
-  const handleEditGroupClick = () => setIsEditModalOpen(true);
-  const handleDeleteGroupClick = () => setIsDeleteModalOpen(true);
+  const handleEditGroupClick = () => setModalState({ ...modalState, isEditModalOpen: true });
+  const handleDeleteGroupClick = () => setModalState({ ...modalState, isDeleteModalOpen: true });
 
   // 그룹 수정 제출 함수
   const handleEditGroupSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:5000/api/groups/${groupId}`, editGroupData);
+      await api.put(`/groups/${groupId}`, editGroupData);
       alert("그룹 정보가 성공적으로 수정되었습니다.");
-      setIsEditModalOpen(false); // 모달 닫기
+      setModalState({ ...modalState, isEditModalOpen: false }); // 모달 닫기
       // 그룹 정보를 다시 로드하거나 상태 업데이트
     } catch (error) {
       alert("그룹 정보 수정에 실패했습니다.");
@@ -98,7 +145,7 @@ const GroupDetail = () => {
   // 그룹 삭제 제출 함수
   const handleDeleteGroupSubmit = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/groups/${groupId}`, {
+      await api.delete(`/groups/${groupId}`, {
         data: { password: editGroupData.password }, // 비밀번호를 사용해 삭제 요청
       });
       alert("그룹이 성공적으로 삭제되었습니다.");
@@ -108,46 +155,25 @@ const GroupDetail = () => {
     }
   };
 
-  // 추억 검색 및 필터링 로직 수정
-  const filteredMemories = memories.filter((memory) => {
-    const isVisible = isPublicSelected ? memory.isPublic : !memory.isPublic;
-    const searchMatch =
-      memory.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (memory.tags && memory.tags.some((tag) =>
-        tag.toLowerCase().includes(searchTerm.toLowerCase())
-      ));
-
-    return isVisible && searchMatch;
-  });
-
   // 추억 올리기 버튼 클릭 시 페이지 이동
   const handleCreateMemoryClick = () => {
     navigate(`/groups/${groupId}/create-memory`);
   };
 
-  const renderMemoryCard = useCallback((memory) => (
-    <div key={memory.id} className="memory-card">
-      <img src={memory.imageUrl} alt={memory.title} className="memory-img" />
-      <div className="memory-info">
-        <div className="memory-meta">
-          <span className="group-name">{groupData?.name}</span>
-          <span className="public-status">{memory.isPublic ? "공개" : "비공개"}</span>
-        </div>
-        <h4 className="memory-card-title">{memory.title}</h4>
-        <p className="memory-tags">{memory.tags ? memory.tags.join(" ") : ""}</p>
-        <div className="memory-footer">
-          <div className="memory-location">
-            <span>{memory.location}</span>
-            <span>{memory.date}</span>
-          </div>
-          <div className="memory-stats">
-            <span>🌟 {memory.likes}</span>
-            <span>💬 {memory.comments}</span>
-          </div>
-        </div>
-      </div>
+  const badgeInfo = {
+    "7days": { name: "7일 연속 추억 등록", icon: "🦋" },
+    "10kGroupLikes": { name: "그룹 공감 1만 개 이상 받기", icon: "🌼" },
+    "10kPostLikes": { name: "게시글 공감 1만 개 이상 받기", icon: "💖" },
+    "20posts": { name: "추억 20개 이상 등록", icon: "📚" },
+    "1year": { name: "1년 달성", icon: "🎂" },
+  };
+
+  const renderBadge = (badgeId, isAcquired) => (
+    <div key={badgeId} className={`badge ${isAcquired ? 'acquired' : 'not-acquired'}`}>
+      <span className="badge-icon">{badgeInfo[badgeId].icon}</span>
+      <span className="badge-name">{badgeInfo[badgeId].name}</span>
     </div>
-  ), [groupData]);
+  );
 
   if (loading) {
     return <div>로딩 중...</div>;
@@ -193,12 +219,9 @@ const GroupDetail = () => {
             <div className="group-badges">
               <h3>획득 배지</h3>
               <div className="badges-list">
-                {groupData.badges.map((badge) => (
-                  <div key={badge.id} className="badge">
-                    <span className="badge-icon">{badge.icon}</span>
-                    <span className="badge-name">{badge.name}</span>
-                  </div>
-                ))}
+                {Object.keys(badgeInfo).map((badgeId) => 
+                  renderBadge(badgeId, badges.some(badge => badge.id === badgeId))
+                )}
               </div>
             </div>
             <button className="like-btn" onClick={likeGroup}>
@@ -243,31 +266,22 @@ const GroupDetail = () => {
           </select>
         </div>
 
-        {loading ? (
-          <div>로딩 중...</div>
-        ) : hasFetchedMemories && memories.length === 0 ? (
-          <div className="empty-memory">
-            <img src="/empty-posts.png" alt="No posts" className="empty-icon" />
-            <p className="no-results">게시된 추억이 없습니다.</p>
-            <p className="upload-first-memory">첫 번째 추억을 올려보세요!</p>
-          </div>
-        ) : (
-          <div className="memory-list">
-            {filteredMemories.length > 0 ? (
-              filteredMemories.map(renderMemoryCard)
-            ) : (
-              <p className="no-results">검색 결과가 없습니다.</p>
-            )}
-          </div>
-        )}
+        <MemoryList
+          groupId={groupId}
+          memories={memories}
+          isPublicSelected={isPublicSelected}
+          searchTerm={searchTerm}
+          loading={loading}
+          hasFetchedMemories={hasFetchedMemories}
+        />
       </div>
 
       {/* 그룹 수정 모달 */}
-      {isEditModalOpen && (
+      {modalState.isEditModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h2>그룹 정보 수정</h2>
-            <button className="close-modal" onClick={() => setIsEditModalOpen(false)}>X</button>
+            <button className="close-modal" onClick={() => handleModalToggle('isEditModalOpen')}>X</button>
             <form onSubmit={handleEditGroupSubmit}>
               <input
                 type="text"
@@ -311,11 +325,11 @@ const GroupDetail = () => {
       )}
 
       {/* 그룹 삭제 모달 */}
-      {isDeleteModalOpen && (
+      {modalState.isDeleteModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h2>그룹 삭제</h2>
-            <button className="close-modal" onClick={() => setIsDeleteModalOpen(false)}>X</button>
+            <button className="close-modal" onClick={() => handleModalToggle('isDeleteModalOpen')}>X</button>
             <p>그룹을 삭제하려면 비밀번호를 입력하세요:</p>
             <input
               type="password"
