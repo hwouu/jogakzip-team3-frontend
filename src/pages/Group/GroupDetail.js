@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from '../../api';
-import { findGroupBadges, checkAndUpdateBadges } from '../../services/badgeService';
 import PostList from '../../components/PostList';
 import "./GroupDetail.css";
 
@@ -29,9 +28,6 @@ const GroupDetail = () => {
     isDeleteModalOpen: false,
   });
 
-  const [badges, setBadges] = useState([]);
-  const [newBadges, setNewBadges] = useState([]);
-
   const handleModalToggle = (modalType) => {
     setModalState((prevState) => ({
       ...prevState,
@@ -44,6 +40,10 @@ const GroupDetail = () => {
       const groupResponse = await api.get(`/groups/${groupId}`);
       console.log("Group response:", groupResponse.data);
       setGroupData(groupResponse.data.groupInfo);
+      
+      // 배지 정보 로깅
+      console.log("Badges:", groupResponse.data.groupInfo.badges);
+
       setEditGroupData({
         name: groupResponse.data.groupInfo.name,
         imageUrl: groupResponse.data.groupInfo.imageUrl,
@@ -74,14 +74,6 @@ const GroupDetail = () => {
           console.error("Posts data is not an array:", postResponse.data);
           setPosts([]);
         }
-
-        const newAcquiredBadges = await checkAndUpdateBadges(groupId);
-        if (newAcquiredBadges.length > 0) {
-          setNewBadges(newAcquiredBadges);
-        }
-
-        const badgesData = await findGroupBadges(groupId);
-        setBadges(badgesData);
       }
       setHasFetchedPosts(true);
     } catch (err) {
@@ -94,25 +86,7 @@ const GroupDetail = () => {
 
   useEffect(() => {
     fetchGroupData();
-
-    const intervalId = setInterval(() => {
-      checkAndUpdateBadges(groupId).then((newAcquiredBadges) => {
-        if (newAcquiredBadges.length > 0) {
-          setNewBadges(newAcquiredBadges);
-          fetchGroupData();
-        }
-      });
-    }, 60000);
-
-    return () => clearInterval(intervalId);
-  }, [fetchGroupData, groupId]);
-
-  useEffect(() => {
-    if (newBadges.length > 0) {
-      alert(`새로운 배지를 획득했습니다: ${newBadges.map(badge => badge.name).join(', ')}`);
-      setNewBadges([]);
-    }
-  }, [newBadges]);
+  }, [fetchGroupData]);
 
   const likeGroup = async () => {
     try {
@@ -123,6 +97,9 @@ const GroupDetail = () => {
         ...prevData,
         likeCount: prevData.likeCount + 1,
       }));
+      
+      // 좋아요 후 그룹 데이터를 다시 불러와 배지 정보를 업데이트합니다.
+      fetchGroupData();
     } catch (error) {
       alert("공감 보내기에 실패했습니다.");
     }
@@ -159,19 +136,23 @@ const GroupDetail = () => {
   };
 
   const badgeInfo = {
-    "7days": { name: "7일 연속 추억 등록", icon: "🦋" },
-    "10kGroupLikes": { name: "그룹 공감 1만 개 이상 받기", icon: "🌼" },
-    "10kPostLikes": { name: "게시글 공감 1만 개 이상 받기", icon: "💖" },
-    "20posts": { name: "추억 20개 이상 등록", icon: "📚" },
-    "1year": { name: "1년 달성", icon: "🎂" },
+    "7일 연속 추억 등록": { icon: "🦋", name: "7일 연속 추억 등록" },
+    "20개 이상": { icon: "📚", name: "추억 20개 이상" },
+    "1년": { icon: "🎂", name: "벌써 1년" },
+    "그룹 좋아요 10000": { icon: "🌼", name: "그룹 좋아요 1만개 이상" },
+    "개시글 좋아요 10000": { icon: "💖", name: "개시글 좋아요 1만개 이상" },
   };
 
-  const renderBadge = (badgeId, isAcquired) => (
-    <div key={badgeId} className={`badge ${isAcquired ? 'acquired' : 'not-acquired'}`}>
-      <span className="badge-icon">{badgeInfo[badgeId].icon}</span>
-      <span className="badge-name">{badgeInfo[badgeId].name}</span>
-    </div>
-  );
+  const renderBadge = (badgeName) => {
+    const isAcquired = groupData.badges.includes(badgeName);
+    console.log(`Badge ${badgeName}: ${isAcquired ? 'Acquired' : 'Not Acquired'}`);
+    return (
+      <div key={badgeName} className={`badge ${isAcquired ? 'acquired' : 'not-acquired'}`}>
+        <span className="badge-icon">{badgeInfo[badgeName].icon}</span>
+        <span className="badge-name">{badgeInfo[badgeName].name}</span>
+      </div>
+    );
+  };
 
   if (loading) {
     return <div>로딩 중...</div>;
@@ -216,9 +197,7 @@ const GroupDetail = () => {
             <div className="group-badges">
               <h3>획득 배지</h3>
               <div className="badges-list">
-                {Object.keys(badgeInfo).map((badgeId) => 
-                  renderBadge(badgeId, badges.some(badge => badge.id === badgeId))
-                )}
+                {Object.keys(badgeInfo).map(renderBadge)}
               </div>
             </div>
             <button className="like-btn" onClick={likeGroup}>
