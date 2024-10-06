@@ -28,6 +28,10 @@ const GroupDetail = () => {
     isDeleteModalOpen: false,
   });
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [sortBy, setSortBy] = useState('latest');
+
   const handleModalToggle = (modalType) => {
     setModalState((prevState) => ({
       ...prevState,
@@ -57,24 +61,11 @@ const GroupDetail = () => {
           navigate(`/groups/${groupId}/private-access`);
           return;
         }
-      } else {
-        const postResponse = await api.get(`/groups/${groupId}/posts`, {
-          params: {
-            isPublic: isPublicSelected ? true : false,
-            page: 1,
-            pageSize: 10,
-            sortBy: 'latest',
-            keyword: searchTerm
-          }
-        });
-        console.log("Post response:", postResponse.data);
-        if (Array.isArray(postResponse.data?.data)) {
-          setPosts(postResponse.data.data);
-        } else {
-          console.error("Posts data is not an array:", postResponse.data);
-          setPosts([]);
-        }
       }
+      
+      // Fetch posts
+      await fetchPosts();
+
       setHasFetchedPosts(true);
     } catch (err) {
       console.error("Error fetching data:", err);
@@ -82,11 +73,43 @@ const GroupDetail = () => {
     } finally {
       setLoading(false);
     }
-  }, [groupId, navigate, isPublicSelected, searchTerm]);
+  }, [groupId, navigate]);
+
+  const fetchPosts = async () => {
+    try {
+      const postResponse = await api.get(`/groups/${groupId}/posts`, {
+        params: {
+          page: currentPage,
+          pageSize: 10,
+          sortBy: sortBy,
+          keyword: searchTerm,
+          isPublic: isPublicSelected
+        }
+      });
+
+      console.log("Post response:", postResponse.data);
+
+      if (Array.isArray(postResponse.data?.data)) {
+        setPosts(postResponse.data.data);
+        setTotalPages(postResponse.data.totalPages);
+      } else {
+        console.error("Posts data is not an array:", postResponse.data);
+        setPosts([]);
+      }
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+    }
+  };
 
   useEffect(() => {
     fetchGroupData();
   }, [fetchGroupData]);
+
+  useEffect(() => {
+    if (hasFetchedPosts) {
+      fetchPosts();
+    }
+  }, [currentPage, sortBy, searchTerm, isPublicSelected]);
 
   const likeGroup = async () => {
     try {
@@ -218,10 +241,16 @@ const GroupDetail = () => {
 
         <div className="post-controls">
           <div className="privacy-toggle">
-            <button className={`public-btn ${isPublicSelected ? "active" : ""}`} onClick={() => setIsPublicSelected(true)}>
+            <button 
+              className={`public-btn ${isPublicSelected ? "active" : ""}`} 
+              onClick={() => setIsPublicSelected(true)}
+            >
               공개
             </button>
-            <button className={`private-btn ${!isPublicSelected ? "active" : ""}`} onClick={() => setIsPublicSelected(false)}>
+            <button 
+              className={`private-btn ${!isPublicSelected ? "active" : ""}`} 
+              onClick={() => setIsPublicSelected(false)}
+            >
               비공개
             </button>
           </div>
@@ -235,9 +264,13 @@ const GroupDetail = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <select className="post-sort-select">
+          <select 
+            className="post-sort-select"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+          >
             <option value="likes">공감순</option>
-            <option value="recent">최신순</option>
+            <option value="latest">최신순</option>
           </select>
         </div>
 
@@ -249,6 +282,19 @@ const GroupDetail = () => {
           loading={loading}
           hasFetchedPosts={hasFetchedPosts}
         />
+
+        {/* Pagination */}
+        <div className="pagination">
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={currentPage === page ? 'active' : ''}
+            >
+              {page}
+            </button>
+          ))}
+        </div>
       </div>
 
       {modalState.isEditModalOpen && (
