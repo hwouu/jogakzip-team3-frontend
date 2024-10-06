@@ -17,16 +17,13 @@ const PrivateGroupAccess = () => {
       return;
     }
     try {
-      // URLSearchParams를 사용하여 요청 본문을 전송
-      const params = new URLSearchParams();
-      params.append('password', password);
-
+      // JSON 형식으로 비밀번호 전송
       const response = await axios.post(
         `http://localhost:5000/api/groups/${groupId}/verify-password`,
-        params,
+        { password },  // JSON 형식으로 요청 본문 전송
         {
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/json'  // 헤더에 JSON 타입 명시
           }
         }
       );
