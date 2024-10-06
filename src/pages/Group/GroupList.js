@@ -14,10 +14,19 @@ const GroupList = () => {
   const [currentPage, setCurrentPage] = useState(1); // 현재 페이지
   const [totalPages, setTotalPages] = useState(1); // 총 페이지 수
 
+  // Add this new function to calculate days since creation
+  const calculateDaysSinceCreation = (createdAt) => {
+    const creationDate = new Date(createdAt);
+    const currentDate = new Date();
+    const diffTime = currentDate - creationDate;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return `D+${diffDays}`;
+  };
+
   // API를 통해 그룹 목록 불러오기
   const fetchGroups = async (page, isPublic, keyword, sortBy) => {
     try {
-      const response = await axios.get('http://localhost:5000/api/groups', {
+      const response = await axios.get('http://15.165.136.170:5000/api/groups', {
         params: {
           page: page,
           isPublic: isPublic,
@@ -60,7 +69,7 @@ const GroupList = () => {
 
   const handleGroupClick = async (group) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/groups/${group.id}/is-public`);
+      const response = await axios.get(`http://15.165.136.170:5000/api/groups/${group.id}/is-public`);
       const { isPublic } = response.data;
 
       if (isPublic) {
@@ -136,7 +145,7 @@ const GroupList = () => {
         </select>
       </div>
 
-      {/* 그룹 카드 리스트 */}
+      {/* 그룹 카드 리��트 */}
       <div className="group-cards">
         {groups.map((group) => (
           <div
@@ -144,17 +153,14 @@ const GroupList = () => {
             className="group-card"
             onClick={() => handleGroupClick(group)}
           >
-            {/* 공개 그룹일 때만 이미지를 출력 */}
-            {group.isPublic && (
-              <img
-                src={group.imageUrl || 'default-group.png'} // 이미지가 없을 경우 기본 이미지 사용
-                alt={group.name}
-                className="group-card-img"
-              />
-            )}
+            <img
+              src={group.imageUrl || '/edelweiss-public.png'} // Use default image if no imageUrl
+              alt={group.name}
+              className="group-card-img"
+            />
             <div className="group-card-info">
               <div className="group-card-header">
-                <span>D+{group.createdAt}</span>
+                <span>{calculateDaysSinceCreation(group.createdAt)}</span>
                 <span className={group.isPublic ? 'public' : 'private'}>
                   {group.isPublic ? '공개' : '비공개'}
                 </span>

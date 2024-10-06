@@ -19,17 +19,17 @@ const PrivateGroupAccess = () => {
     try {
       // JSON 형식으로 비밀번호 전송
       const response = await axios.post(
-        `http://localhost:5000/api/groups/${groupId}/verify-password`,
-        { password },  // JSON 형식으로 요청 본문 전송
+        `http://15.165.136.170:5000/api/groups/${groupId}/verify-password`,
+        { password }, // JSON 형식으로 요청 본문 전송
         {
           headers: {
-            'Content-Type': 'application/json'  // 헤더에 JSON 타입 명시
-          }
+            "Content-Type": "application/json", // 헤더에 JSON 타입 명시
+          },
         }
       );
 
       if (response.status === 200) {
-        localStorage.setItem(`group_${groupId}_access`, 'true');
+        localStorage.setItem(`group_${groupId}_access`, "true");
         navigate(`/groups/${groupId}`);
       } else {
         setError("비밀번호가 틀렸습니다.");

@@ -14,17 +14,18 @@ const PrivatePostAccess = ({ postId }) => {
     setError(null);
 
     try {
-      const response = await axios.post(`http://localhost:5000/api/posts/${postId}/verify-password`, 
+      const response = await axios.post(
+        `http://15.165.136.170:5000/api/posts/${postId}/verify-password`,
         { password },
         {
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
-      
+
       if (response.status === 200) {
-        localStorage.setItem(`post_${postId}_access`, 'true');
+        localStorage.setItem(`post_${postId}_access`, "true");
         navigate(`/groups/${groupId}/post/${postId}`); // 비밀번호 검증 후 바로 게시물로 이동
       }
     } catch (error) {

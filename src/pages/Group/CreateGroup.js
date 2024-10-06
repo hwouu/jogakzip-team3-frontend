@@ -55,7 +55,7 @@ function CreateGroup() {
         }
 
         response = await axios.post(
-          "http://localhost:5000/api/groups",
+          "http://15.165.136.170:5000/api/groups",
           formData,
           {
             headers: {
@@ -68,7 +68,7 @@ function CreateGroup() {
         console.log("Sending JSON data without image");
 
         response = await axios.post(
-          "http://localhost:5000/api/groups",
+          "http://15.165.136.170:5000/api/groups",
           groupData,
           {
             headers: {
@@ -80,11 +80,14 @@ function CreateGroup() {
 
       console.log("Server response:", response.data);
 
-      if (response.status === 200 || response.status === 201 || response.status === 204) {
+      if (
+        response.status === 200 ||
+        response.status === 201 ||
+        response.status === 204
+      ) {
         alert("그룹이 성공적으로 생성되었습니다.");
         navigate("/groups");
       }
-
     } catch (error) {
       console.error("Error creating group:", error);
       if (error.response) {
